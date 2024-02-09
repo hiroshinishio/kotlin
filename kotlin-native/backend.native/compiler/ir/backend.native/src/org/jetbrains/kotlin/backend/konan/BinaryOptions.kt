@@ -92,6 +92,10 @@ object BinaryOptions : BinaryOptionRegistry() {
     val genericSafeCasts by booleanOption()
 
     val smallBinary by booleanOption()
+
+    val eventTrackerFrequency by stringOption()
+
+    val eventTrackerBacktraceDepth by stringOption()
 }
 
 open class BinaryOption<T : Any>(

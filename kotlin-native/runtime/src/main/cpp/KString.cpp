@@ -477,6 +477,7 @@ KInt Kotlin_String_utf16length(KString message) {
 } // extern "C"
 
 std::string kotlin::to_string(KString kstring) {
+    if (kstring == nullptr) return "null";
     RuntimeAssert(kstring->type_info() == theStringTypeInfo, "A Kotlin String expected");
     const KChar* utf16 = CharArrayAddressOfElementAt(kstring, 0);
     std::string utf8;
