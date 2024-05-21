@@ -90,7 +90,7 @@ fun compileModulesUsingFrontendIrAndLightTree(
     performanceManager?.notifyCompilerInitialized(0, 0, targetDescription)
 
     val project = projectEnvironment.project
-    FirAnalysisHandlerExtension.analyze(project, compilerConfiguration)?.let { return it }
+    FirAnalysisHandlerExtension.analyze(project, module, compilerConfiguration)?.let { return it }
 
     val moduleConfiguration = compilerConfiguration.copy().applyModuleProperties(module, buildFile).apply {
         put(JVMConfigurationKeys.FRIEND_PATHS, module.getFriendPaths())
@@ -269,7 +269,7 @@ fun generateCodeFromIr(
 
     performanceManager?.notifyGenerationFinished()
 
-    return ModuleCompilerOutput(generationState)
+    return ModuleCompilerOutput(generationState, builderFactory)
 }
 
 fun compileModuleToAnalyzedFir(
