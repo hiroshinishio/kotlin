@@ -15,9 +15,11 @@ import org.jetbrains.kotlin.kapt3.test.KaptTestDirectives.NON_EXISTENT_CLASS
 import org.jetbrains.kotlin.kapt3.test.KaptTestDirectives.NO_VALIDATION
 import org.jetbrains.kotlin.kapt3.test.messageCollectorProvider
 import org.jetbrains.kotlin.kapt3.util.prettyPrint
+import org.jetbrains.kotlin.test.model.FrontendKinds
 import org.jetbrains.kotlin.test.model.TestModule
 import org.jetbrains.kotlin.test.services.TestServices
 import org.jetbrains.kotlin.test.util.trimTrailingWhitespacesAndAddNewlineAtEOF
+import org.jetbrains.kotlin.test.utils.withExtension
 import java.util.*
 
 class ClassFileToSourceKaptStubHandler(testServices: TestServices) : BaseKaptHandler(testServices) {
@@ -82,7 +84,17 @@ class ClassFileToSourceKaptStubHandler(testServices: TestServices) : BaseKaptHan
             }
         }
 
-        assertions.checkTxtAccordingToBackend(module, actual)
+        val isFir = module.frontendKind == FrontendKinds.FIR
+        val testDataFile = module.files.first().originalFile
+        val firFile = testDataFile.withExtension("fir.txt")
+        val txtFile = testDataFile.withExtension("txt")
+        val expectedFile = if (isFir && firFile.exists()) firFile else txtFile
+
+        assertions.assertEqualsToFile(expectedFile, actual)
+
+        if (isFir && firFile.exists() && txtFile.exists() && txtFile.readText() == firFile.readText()) {
+            assertions.fail { ".fir.txt and .txt golden files are identical. Remove $firFile." }
+        }
     }
 
     private fun String.toDirectiveView(): String = "// ${EXPECTED_ERROR.name}: $this"

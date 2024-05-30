@@ -62,7 +62,9 @@ class JvmCompilerWithKaptFacade(
     }
 }
 
-class KaptContextBinaryArtifact(val kaptContext: KaptContextForStubGeneration) : ResultingArtifact.Binary<KaptContextBinaryArtifact>() {
+class KaptContextBinaryArtifact(val kaptContext: KaptContextForStubGeneration) :
+    ResultingArtifact.Binary<KaptContextBinaryArtifact>()
+{
     object Kind : BinaryKind<KaptContextBinaryArtifact>("KaptArtifact")
 
     override val kind: BinaryKind<KaptContextBinaryArtifact>

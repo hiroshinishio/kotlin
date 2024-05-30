@@ -1,3 +1,25 @@
+package lib;
+
+public class File {
+
+    public File() {
+        super();
+    }
+}
+
+////////////////////
+
+package lib;
+
+public class IOException {
+
+    public IOException() {
+        super();
+    }
+}
+
+////////////////////
+
 package test;
 
 /**
@@ -16,7 +38,6 @@ public final class TestA {
         super();
     }
 }
-
 
 ////////////////////
 
@@ -56,12 +77,9 @@ public abstract interface TestB {
     public abstract lib.IOException d();
 }
 
-
 ////////////////////
 
 package test;
-
-import lib.FooBar;
 
 /**
  * public abstract interface test/TestC : kotlin/Any {
@@ -100,5 +118,5 @@ public abstract interface TestC {
     public abstract lib.IOException d();
 
     @org.jetbrains.annotations.NotNull()
-    public abstract lib.FooBar e();
+    public abstract java.lang.Object e();
 }
