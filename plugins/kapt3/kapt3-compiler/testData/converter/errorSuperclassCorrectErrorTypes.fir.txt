@@ -257,7 +257,7 @@ package test;
 @kotlin.Metadata()
 public final class TFooBar implements test.Intf {
     @org.jetbrains.annotations.NotNull()
-    private final java.lang.Object a = null;
+    private final X a = null;
 
     public TFooBar(@org.jetbrains.annotations.NotNull()
     java.lang.Object a) {
@@ -290,7 +290,7 @@ package test;
 @kotlin.Metadata()
 public final class TFooBar2 {
     @org.jetbrains.annotations.NotNull()
-    private final java.lang.Object a = null;
+    private final X a = null;
 
     public TFooBar2(@org.jetbrains.annotations.NotNull()
     java.lang.Object a) {
