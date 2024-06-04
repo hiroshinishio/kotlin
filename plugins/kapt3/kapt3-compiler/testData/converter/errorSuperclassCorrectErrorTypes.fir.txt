@@ -264,7 +264,7 @@ public final class TFooBar implements test.Intf {
     }
 
     @org.jetbrains.annotations.NotNull()
-    public final java.lang.Object getA() {
+    public final X getA() {
         return null;
     }
 }
@@ -297,7 +297,7 @@ public final class TFooBar2 {
     }
 
     @org.jetbrains.annotations.NotNull()
-    public final java.lang.Object getA() {
+    public final X getA() {
         return null;
     }
 }
