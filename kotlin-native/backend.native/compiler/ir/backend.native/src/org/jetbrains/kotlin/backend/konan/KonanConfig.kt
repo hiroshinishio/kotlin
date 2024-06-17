@@ -177,6 +177,11 @@ class KonanConfig(val project: Project, val configuration: CompilerConfiguration
     val fixedBlockPageSize: UInt
         get() = configuration.get(BinaryOptions.fixedBlockPageSize) ?: defaultFixedBlockPageSize
 
+    private val defaultFixedBlockStartupDelay: UInt get() = 32u
+
+    val fixedBlockStartupDelay: UInt
+        get() = configuration.get(BinaryOptions.fixedBlockStartupDelay) ?: defaultFixedBlockStartupDelay
+
     val concurrentWeakSweep: Boolean
         get() = configuration.get(BinaryOptions.concurrentWeakSweep) ?: true
 
@@ -538,6 +543,8 @@ class KonanConfig(val project: Project, val configuration: CompilerConfiguration
             append("-gc_mark_single_threaded${if (gcMarkSingleThreaded) "TRUE" else "FALSE"}")
         if (fixedBlockPageSize != defaultFixedBlockPageSize)
             append("-fixed_block_page_size$fixedBlockPageSize")
+        if (fixedBlockStartupDelay != defaultFixedBlockStartupDelay)
+            append("-fixed_block_startup_delay$fixedBlockStartupDelay")
     }
 
     private val userCacheFlavorString = buildString {
