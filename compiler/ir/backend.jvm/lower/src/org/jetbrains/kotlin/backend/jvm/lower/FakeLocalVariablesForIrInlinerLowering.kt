@@ -24,6 +24,7 @@ import org.jetbrains.kotlin.ir.builders.irInt
 import org.jetbrains.kotlin.ir.declarations.*
 import org.jetbrains.kotlin.ir.expressions.IrBlock
 import org.jetbrains.kotlin.ir.expressions.IrInlinedFunctionBlock
+import org.jetbrains.kotlin.ir.expressions.IrReturnableBlock
 import org.jetbrains.kotlin.ir.util.inlineDeclaration
 import org.jetbrains.kotlin.ir.util.isFunctionInlining
 import org.jetbrains.kotlin.ir.util.isLambdaInlining
@@ -171,9 +172,15 @@ private class FunctionParametersProcessor : IrElementVisitorVoid {
         element.acceptChildrenVoid(this)
     }
 
+    override fun visitReturnableBlock(expression: IrReturnableBlock) {
+        super.visitReturnableBlock(expression)
+        val inlinedBlock = expression.statements.lastOrNull() as? IrInlinedFunctionBlock ?: return
+        expression.getInlinedVariablesFromCallSite().forEach { it.processFunctionParameter(inlinedBlock) }
+    }
+
     override fun visitInlinedFunctionBlock(inlinedBlock: IrInlinedFunctionBlock) {
         super.visitInlinedFunctionBlock(inlinedBlock)
-        inlinedBlock.getAdditionalStatementsFromInlinedBlock().forEach {
+        inlinedBlock.getDefaultAdditionalStatementsFromInlinedBlock().forEach {
             it.processFunctionParameter(inlinedBlock)
         }
     }
