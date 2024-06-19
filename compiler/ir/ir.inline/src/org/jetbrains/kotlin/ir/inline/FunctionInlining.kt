@@ -189,7 +189,7 @@ open class FunctionInlining(
                 parent = callee.parent
             }
 
-            val evaluationStatements = evaluateArguments(callSite, copiedCallee)
+            val (blockForNewStatements, blockForNewStatementsFromDefault) = evaluateArguments(callSite, copiedCallee)
             val statements = (copiedCallee.body as? IrBlockBody)?.statements
                 ?: error("Body not found for function ${callee.render()}")
 
@@ -210,7 +210,7 @@ open class FunctionInlining(
                 inlineCall = callSite,
                 inlinedElement = originalInlinedElement,
                 origin = null,
-                statements = evaluationStatements + newStatements
+                statements = blockForNewStatementsFromDefault.statements + newStatements
             )
 
             // Note: here we wrap `IrInlinedFunctionBlock` inside `IrReturnableBlock` because such way it is easier to
@@ -221,7 +221,7 @@ open class FunctionInlining(
                 type = callSite.type,
                 symbol = irReturnableBlockSymbol,
                 origin = null,
-                statements = listOf(inlinedBlock),
+                statements = blockForNewStatements.statements + inlinedBlock,
             ).apply {
                 transformChildrenVoid(object : IrElementTransformerVoid() {
                     override fun visitReturn(expression: IrReturn): IrExpression {
@@ -646,7 +646,7 @@ open class FunctionInlining(
             return newVariable
         }
 
-        private fun evaluateArguments(callSite: IrFunctionAccessExpression, callee: IrFunction): List<IrStatement> {
+        private fun evaluateArguments(callSite: IrFunctionAccessExpression, callee: IrFunction): Pair<IrComposite, IrComposite> {
             val arguments = buildParameterToArgument(callSite, callee)
             val evaluationStatements = mutableListOf<IrVariable>()
             val evaluationStatementsFromDefault = mutableListOf<IrVariable>()
@@ -706,10 +706,7 @@ open class FunctionInlining(
                 INLINED_FUNCTION_DEFAULT_ARGUMENTS, statements = evaluationStatementsFromDefault
             )
 
-            return listOfNotNull(
-                blockForNewStatements.takeIf { evaluationStatements.isNotEmpty() },
-                blockForNewStatementsFromDefault.takeIf { evaluationStatementsFromDefault.isNotEmpty() }
-            )
+            return blockForNewStatements to blockForNewStatementsFromDefault
         }
 
         private fun ParameterToArgument.shouldBeSubstitutedViaTemporaryVariable(): Boolean =
@@ -740,7 +737,7 @@ open class FunctionInlining(
                 }
             )
 
-            variable.name = Name.identifier(parameter.name.asStringStripSpecialMarkers())
+//            variable.name = Name.identifier(parameter.name.asStringStripSpecialMarkers())
 
             return variable
         }
