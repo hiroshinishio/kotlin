@@ -172,10 +172,11 @@ private class FunctionParametersProcessor : IrElementVisitorVoid {
         element.acceptChildrenVoid(this)
     }
 
-    override fun visitReturnableBlock(expression: IrReturnableBlock) {
-        super.visitReturnableBlock(expression)
+    override fun visitBlock(expression: IrBlock) {
+        super.visitBlock(expression)
         val inlinedBlock = expression.statements.lastOrNull() as? IrInlinedFunctionBlock ?: return
-        expression.getInlinedVariablesFromCallSite().forEach { it.processFunctionParameter(inlinedBlock) }
+        expression.statements.dropLast(1).forEach { it.processFunctionParameter(inlinedBlock) }
+        inlinedBlock.acceptVoid(this)
     }
 
     override fun visitInlinedFunctionBlock(inlinedBlock: IrInlinedFunctionBlock) {
@@ -213,9 +214,10 @@ private class ScopeNumberVariableProcessor : IrElementVisitorVoid {
         declaration.acceptChildrenVoid(processor)
     }
 
-    override fun visitInlinedFunctionBlock(inlinedBlock: IrInlinedFunctionBlock) {
+    override fun visitBlock(expression: IrBlock) {
+        val inlinedBlock = expression.statements.lastOrNull() as? IrInlinedFunctionBlock ?: return super.visitBlock(expression)
         inlinedBlock.insertInStackAndProcess {
-            super.visitInlinedFunctionBlock(inlinedBlock)
+            super.visitBlock(expression)
         }
     }
 
