@@ -5,7 +5,6 @@
 
 package org.jetbrains.kotlin.backend.common.lower
 
-import org.jetbrains.kotlin.ir.util.innerInlinedBlockOrThis
 import org.jetbrains.kotlin.ir.IrBuiltIns
 import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.declarations.*
@@ -135,12 +134,12 @@ abstract class AbstractValueUsageTransformer(
             return expression
         }
 
-        val container = expression.innerInlinedBlockOrThis
-        val lastIndex = container.statements.lastIndex
-        container.statements.forEachIndexed { i, irStatement ->
+        val lastIndex = expression.statements.lastIndex
+        expression.statements.forEachIndexed { i, irStatement ->
             if (irStatement is IrExpression) {
-                container.statements[i] = when (i) {
-                    lastIndex -> irStatement.useAsResult(expression)
+                expression.statements[i] = when {
+                    irStatement is IrInlinedFunctionBlock -> irStatement.useAsStatement()
+                    i == lastIndex -> irStatement.useAsResult(expression)
                     else -> irStatement.useAsStatement()
                 }
             }

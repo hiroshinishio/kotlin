@@ -5,6 +5,7 @@
 
 package org.jetbrains.kotlin.ir.util
 
+import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.declarations.IrDeclaration
 import org.jetbrains.kotlin.ir.declarations.IrFunction
 import org.jetbrains.kotlin.ir.declarations.IrValueParameter
@@ -37,8 +38,15 @@ fun IrInlinedFunctionBlock.isLambdaInlining(): Boolean {
     return !isFunctionInlining()
 }
 
-val IrContainerExpression.innerInlinedBlockOrThis: IrContainerExpression
-    get() = (this as? IrReturnableBlock)?.statements?.lastOrNull() as? IrInlinedFunctionBlock ?: this
+// TODO drop or inline
+val IrContainerExpression.allStatements: List<IrStatement>
+    get() = when (this) {
+        is IrReturnableBlock -> {
+            val inlinedBlock = this.statements.lastOrNull() as? IrInlinedFunctionBlock
+            this.statements.dropLast(1) + (inlinedBlock?.statements ?: emptyList<IrStatement>())
+        }
+        else -> this.statements
+    }
 val IrReturnableBlock.inlineFunction: IrFunction?
     get() = (this.statements.lastOrNull() as? IrInlinedFunctionBlock)?.inlineFunction
 val IrReturnableBlock.sourceFileSymbol: IrFileSymbol?
