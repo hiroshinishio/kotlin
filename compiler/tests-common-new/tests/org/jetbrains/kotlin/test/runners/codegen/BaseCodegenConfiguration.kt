@@ -158,6 +158,7 @@ fun HandlersStepBuilder<BinaryArtifacts.Jvm, ArtifactKinds.Jvm>.dumpHandlersForB
 fun HandlersStepBuilder<BinaryArtifacts.Jvm, ArtifactKinds.Jvm>.boxHandlersForBackendStep() {
     useHandlers(
 //        ::DumpBytecode,
+//        ::CompareBytecode,
         ::JvmBoxRunner
     )
 }
