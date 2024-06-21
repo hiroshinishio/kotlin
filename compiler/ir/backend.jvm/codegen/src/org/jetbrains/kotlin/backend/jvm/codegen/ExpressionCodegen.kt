@@ -1305,7 +1305,7 @@ class ExpressionCodegen(
         mv.nop()
         val endLabel = Label()
         val stackElement = unwindBlockStack(endLabel, data) { it.loop == jump.loop }
-        if ((jump.loop.body as? IrBlock)?.statements?.singleOrNull() is IrInlinedFunctionBlock) {
+        if ((jump.loop.body as? IrBlock)?.statements?.lastOrNull() is IrInlinedFunctionBlock) {
             // There must be another line number because this jump is actually return from inlined function
             jump.markLineNumber(startOffset = true)
         }
