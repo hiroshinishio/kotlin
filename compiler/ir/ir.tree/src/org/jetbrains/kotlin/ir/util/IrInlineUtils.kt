@@ -38,15 +38,6 @@ fun IrInlinedFunctionBlock.isLambdaInlining(): Boolean {
     return !isFunctionInlining()
 }
 
-// TODO drop or inline
-val IrContainerExpression.allStatements: List<IrStatement>
-    get() = when (this) {
-        is IrReturnableBlock -> {
-            val inlinedBlock = this.statements.lastOrNull() as? IrInlinedFunctionBlock
-            this.statements.dropLast(1) + (inlinedBlock?.statements ?: emptyList<IrStatement>())
-        }
-        else -> this.statements
-    }
 val IrReturnableBlock.inlineFunction: IrFunction?
     get() = (this.statements.lastOrNull() as? IrInlinedFunctionBlock)?.inlineFunction
 val IrReturnableBlock.sourceFileSymbol: IrFileSymbol?

@@ -43,8 +43,7 @@ class IrElementToJsStatementTransformer : BaseIrElementToJsNodeTransformer<JsSta
             context.newFile(it.file, context.currentFunction, context.localNames)
         } ?: context
 
-        val container = expression.allStatements
-        val statements = container.map { it.accept(this, newContext) }.toSmartList()
+        val statements = expression.statements.map { it.accept(this, newContext) }.toSmartList()
 
         return if (expression is IrReturnableBlock) {
             val label = context.getNameForReturnableBlock(expression)
