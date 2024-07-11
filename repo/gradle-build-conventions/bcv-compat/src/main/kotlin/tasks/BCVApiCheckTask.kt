@@ -2,11 +2,11 @@
  * Copyright 2010-2024 JetBrains s.r.o. and Kotlin Programming Language contributors.
  * Use of this source code is governed by the Apache 2.0 license that can be found in the license/LICENSE.txt file.
  */
-package gradle_build_conventions.bcv.tasks
+package kotlin_git.gradle_build_conventions.bcv.tasks
 
-import gradle_build_conventions.bcv.BCVCompatPlugin.Companion.API_DUMP_TASK_NAME
-import gradle_build_conventions.bcv.internal.GradlePath
-import gradle_build_conventions.bcv.internal.fullPath
+import kotlin_git.gradle_build_conventions.bcv.BCVCompatPlugin.Companion.API_DUMP_TASK_NAME
+import kotlin_git.gradle_build_conventions.bcv.internal.GradlePath
+import kotlin_git.gradle_build_conventions.bcv.internal.fullPath
 import com.github.difflib.DiffUtils
 import com.github.difflib.UnifiedDiffUtils
 import org.gradle.api.DefaultTask

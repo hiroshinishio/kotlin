@@ -2,14 +2,14 @@
  * Copyright 2010-2024 JetBrains s.r.o. and Kotlin Programming Language contributors.
  * Use of this source code is governed by the Apache 2.0 license that can be found in the license/LICENSE.txt file.
  */
-package gradle_build_conventions.bcv
+package kotlin_git.gradle_build_conventions.bcv
 
-import gradle_build_conventions.bcv.internal.BcvProperties
-import gradle_build_conventions.bcv.internal.declarable
-import gradle_build_conventions.bcv.internal.resolvable
-import gradle_build_conventions.bcv.tasks.BCVApiCheckTask
-import gradle_build_conventions.bcv.tasks.BCVApiDumpTask
-import gradle_build_conventions.bcv.tasks.BCVApiGenerateTask
+import kotlin_git.gradle_build_conventions.bcv.internal.BcvProperties
+import kotlin_git.gradle_build_conventions.bcv.internal.declarable
+import kotlin_git.gradle_build_conventions.bcv.internal.resolvable
+import kotlin_git.gradle_build_conventions.bcv.tasks.BCVApiCheckTask
+import kotlin_git.gradle_build_conventions.bcv.tasks.BCVApiDumpTask
+import kotlin_git.gradle_build_conventions.bcv.tasks.BCVApiGenerateTask
 import org.gradle.api.NamedDomainObjectProvider
 import org.gradle.api.Plugin
 import org.gradle.api.Project

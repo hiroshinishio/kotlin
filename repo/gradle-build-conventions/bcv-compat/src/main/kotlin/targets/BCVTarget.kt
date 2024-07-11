@@ -2,7 +2,7 @@
  * Copyright 2010-2024 JetBrains s.r.o. and Kotlin Programming Language contributors.
  * Use of this source code is governed by the Apache 2.0 license that can be found in the license/LICENSE.txt file.
  */
-package gradle_build_conventions.bcv.targets
+package kotlin_git.gradle_build_conventions.bcv.targets
 
 import org.gradle.api.Named
 import org.gradle.api.file.ConfigurableFileCollection
@@ -39,32 +39,32 @@ constructor(
     @get:Optional
     abstract override val inputJar: RegularFileProperty
 
-    /** @see gradle_build_conventions.bcv.targets.BCVTarget.publicMarkers */
+    /** @see kotlin_git.gradle_build_conventions.bcv.targets.BCVTarget.publicMarkers */
     @get:Input
     @get:Optional
     abstract override val publicMarkers: SetProperty<String>
 
-    /** @see gradle_build_conventions.bcv.targets.BCVTarget.publicPackages */
+    /** @see kotlin_git.gradle_build_conventions.bcv.targets.BCVTarget.publicPackages */
     @get:Input
     @get:Optional
     abstract override val publicPackages: SetProperty<String>
 
-    /** @see gradle_build_conventions.bcv.targets.BCVTarget.publicClasses */
+    /** @see kotlin_git.gradle_build_conventions.bcv.targets.BCVTarget.publicClasses */
     @get:Input
     @get:Optional
     abstract override val publicClasses: SetProperty<String>
 
-    /** @see gradle_build_conventions.bcv.targets.BCVTarget.ignoredMarkers */
+    /** @see kotlin_git.gradle_build_conventions.bcv.targets.BCVTarget.ignoredMarkers */
     @get:Input
     @get:Optional
     abstract override val ignoredMarkers: SetProperty<String>
 
-    /** @see gradle_build_conventions.bcv.targets.BCVTarget.ignoredPackages */
+    /** @see kotlin_git.gradle_build_conventions.bcv.targets.BCVTarget.ignoredPackages */
     @get:Input
     @get:Optional
     abstract override val ignoredPackages: SetProperty<String>
 
-    /** @see gradle_build_conventions.bcv.targets.BCVTarget.ignoredClasses */
+    /** @see kotlin_git.gradle_build_conventions.bcv.targets.BCVTarget.ignoredClasses */
     @get:Input
     @get:Optional
     abstract override val ignoredClasses: SetProperty<String>

@@ -2,12 +2,12 @@
  * Copyright 2010-2024 JetBrains s.r.o. and Kotlin Programming Language contributors.
  * Use of this source code is governed by the Apache 2.0 license that can be found in the license/LICENSE.txt file.
  */
-package gradle_build_conventions.bcv.tasks
+package kotlin_git.gradle_build_conventions.bcv.tasks
 
-import gradle_build_conventions.bcv.internal.adding
-import gradle_build_conventions.bcv.internal.domainObjectContainer
-import gradle_build_conventions.bcv.targets.BCVTarget
-import gradle_build_conventions.bcv.workers.BCVSignaturesWorker
+import kotlin_git.gradle_build_conventions.bcv.internal.adding
+import kotlin_git.gradle_build_conventions.bcv.internal.domainObjectContainer
+import kotlin_git.gradle_build_conventions.bcv.targets.BCVTarget
+import kotlin_git.gradle_build_conventions.bcv.workers.BCVSignaturesWorker
 import org.gradle.api.DefaultTask
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.file.ConfigurableFileCollection

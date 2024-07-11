@@ -45,7 +45,7 @@ val generateBcvProperties by tasks.registering {
         outputDir.mkdirs()
         outputDir.resolve("BcvProperties.kt").writeText(
             """
-            |package gradle_build_conventions.bcv.internal
+            |package kotlin_git.gradle_build_conventions.bcv.internal
             |
             |internal object BcvProperties {
             |    const val KOTLINX_BCV_VERSION = "${bcvVersion.get()}"
@@ -63,8 +63,8 @@ kotlin.sourceSets.main {
 gradlePlugin {
     plugins {
         create("bcvCompat") {
-            id = "gradle_build_conventions.bcv-compat"
-            implementationClass = "gradle_build_conventions.bcv.BCVCompatPlugin"
+            id = "kotlin-git.gradle-build-conventions.bcv-compat"
+            implementationClass = "kotlin_git.gradle_build_conventions.bcv.BCVCompatPlugin"
         }
     }
 }

@@ -3,7 +3,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("gradle-plugin-common-configuration")
-    id("gradle_build_conventions.bcv-compat")
+    id("kotlin-git.gradle-build-conventions.bcv-compat")
 }
 
 repositories {
