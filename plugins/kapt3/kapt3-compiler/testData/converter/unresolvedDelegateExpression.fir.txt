@@ -15,7 +15,7 @@
  */
 @kotlin.Metadata()
 @kotlin.Suppress(names = {"UNRESOLVED_REFERENCE"})
-public final class B {
+public final class B implements NonExisting {
     @org.jetbrains.annotations.NotNull()
     private final java.lang.String a$delegate = null;
 
@@ -88,7 +88,7 @@ public final class D implements I {
  */
 @kotlin.Metadata()
 @kotlin.Suppress(names = {"UNRESOLVED_REFERENCE", "DELEGATION_NOT_TO_INTERFACE"})
-public final class E {
+public final class E implements NonExisting {
 
     public E() {
     }

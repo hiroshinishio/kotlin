@@ -11,6 +11,8 @@ import com.sun.tools.javac.util.Log
 import org.jetbrains.kotlin.kapt3.base.javac.KaptJavaLogBase
 import org.jetbrains.kotlin.kapt3.test.KaptContextBinaryArtifact
 import org.jetbrains.kotlin.kapt3.test.KaptTestDirectives.EXPECTED_ERROR
+import org.jetbrains.kotlin.kapt3.test.KaptTestDirectives.EXPECTED_ERROR_K1
+import org.jetbrains.kotlin.kapt3.test.KaptTestDirectives.EXPECTED_ERROR_K2
 import org.jetbrains.kotlin.kapt3.test.KaptTestDirectives.NON_EXISTENT_CLASS
 import org.jetbrains.kotlin.kapt3.test.KaptTestDirectives.NO_VALIDATION
 import org.jetbrains.kotlin.kapt3.test.messageCollectorProvider
@@ -30,9 +32,11 @@ class ClassFileToSourceKaptStubHandler(testServices: TestServices) : BaseKaptHan
     override fun processModule(module: TestModule, info: KaptContextBinaryArtifact) {
         val generateNonExistentClass = NON_EXISTENT_CLASS in module.directives
         val validate = NO_VALIDATION !in module.directives
-        val expectedErrors = module.directives[EXPECTED_ERROR].sorted()
-
         val kaptContext = info.kaptContext
+        val expectedErrors = (
+                module.directives[EXPECTED_ERROR] +
+                        module.directives[if (module.frontendKind == FrontendKinds.FIR) EXPECTED_ERROR_K2 else EXPECTED_ERROR_K1]
+                ).sorted()
 
         val convertedFiles = convert(module, kaptContext, generateNonExistentClass)
 
