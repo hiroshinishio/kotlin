@@ -112,10 +112,7 @@ internal fun computeImportingScopes(
         if (includePackageImport) {
             this += when {
                 excludedNamesInPackage.isEmpty() ->
-                    // Supposed to be the most common branch, so we cache it
-                    scopeSession.getOrBuild(file.packageFqName, PACKAGE_MEMBER) {
-                        FirPackageMemberScope(file.packageFqName, session, excludedNames = emptySet())
-                    }
+                    FirPackageMemberScope(file.packageFqName, session, excludedNames = emptySet())
                 else ->
                     FirPackageMemberScope(file.packageFqName, session, excludedNames = excludedNamesInPackage)
             }
