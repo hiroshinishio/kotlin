@@ -243,7 +243,6 @@ abstract class BaseGradleIT {
         val languageApiVersion: String? = null,
         val customEnvironmentVariables: Map<String, String> = mapOf(),
         val dryRun: Boolean = false,
-        val abiSnapshot: Boolean = false,
         val hierarchicalMPPStructureSupport: Boolean? = null,
         val withReports: List<BuildReportType> = emptyList(),
         val enableKpmModelMapping: Boolean? = null,
@@ -936,9 +935,6 @@ abstract class BaseGradleIT {
 
             if (options.dryRun) {
                 add("--dry-run")
-            }
-            if (options.abiSnapshot) {
-                add("-Pkotlin.incremental.classpath.snapshot.enabled=true")
             }
 
             if (options.hierarchicalMPPStructureSupport != null) {

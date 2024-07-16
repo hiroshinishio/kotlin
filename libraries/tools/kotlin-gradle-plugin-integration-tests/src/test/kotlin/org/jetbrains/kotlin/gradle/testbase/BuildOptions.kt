@@ -32,7 +32,6 @@ data class BuildOptions(
     val parallel: Boolean = true,
     val incremental: Boolean? = null,
     val useGradleClasspathSnapshot: Boolean? = null,
-    val useICClasspathSnapshot: Boolean? = null,
     val maxWorkers: Int = (Runtime.getRuntime().availableProcessors() / 4 - 1).coerceAtLeast(2),
     // On Windows OS enabling watch-fs prevents deleting temp directory, which fails the tests
     val fileSystemWatchEnabled: Boolean = !OS.WINDOWS.isCurrentOs,
@@ -140,7 +139,6 @@ data class BuildOptions(
         }
 
         useGradleClasspathSnapshot?.let { arguments.add("-Pkotlin.incremental.useClasspathSnapshot=$it") }
-        useICClasspathSnapshot?.let { arguments.add("-Pkotlin.incremental.classpath.snapshot.enabled=$it") }
 
         if (fileSystemWatchEnabled) {
             arguments.add("--watch-fs")
