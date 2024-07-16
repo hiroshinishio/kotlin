@@ -21955,12 +21955,6 @@ public class LLFirPreresolvedReversedDiagnosticCompilerFE10TestDataTestGenerated
       }
 
       @Test
-      @TestMetadata("basicInlineClassDeclarationDisabled.kt")
-      public void testBasicInlineClassDeclarationDisabled() {
-        runTest("compiler/testData/diagnostics/tests/inlineClasses/basicInlineClassDeclarationDisabled.kt");
-      }
-
-      @Test
       @TestMetadata("delegatedPropertyInInlineClass.kt")
       public void testDelegatedPropertyInInlineClass() {
         runTest("compiler/testData/diagnostics/tests/inlineClasses/delegatedPropertyInInlineClass.kt");
