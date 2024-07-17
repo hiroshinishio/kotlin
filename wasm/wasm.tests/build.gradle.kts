@@ -77,7 +77,7 @@ val jsShell by configurations.creating {
     isCanBeConsumed = false
 }
 
-val wasmEdgeVersion = "0.14.0"
+val wasmEdgeVersion = property("versions.wasmedge") as String
 val wasmEdgeSuffix = when (currentOsType) {
     OsType(OsName.LINUX, OsArch.X86_64) -> "manylinux_2_28_x86_64@tar.gz"
     OsType(OsName.MAC, OsArch.X86_64) -> "darwin_x86_64@tar.gz"

@@ -20,7 +20,7 @@ internal sealed class WasmVM(val shortName: String) {
         ExternalTool(System.getProperty(property))
     }
 
-    abstract val hasJsSupport: Boolean
+    abstract val entryPointIsJsFile: Boolean
 
     abstract fun run(
         entryFile: String,
@@ -31,7 +31,7 @@ internal sealed class WasmVM(val shortName: String) {
     ): String
 
     object V8 : WasmVM("V8") {
-        override val hasJsSupport = true
+        override val entryPointIsJsFile = true
 
         override fun run(
             entryFile: String,
@@ -51,7 +51,7 @@ internal sealed class WasmVM(val shortName: String) {
     }
 
     object SpiderMonkey : WasmVM("SM") {
-        override val hasJsSupport = true
+        override val entryPointIsJsFile = true
 
         override fun run(
             entryFile: String,
@@ -69,8 +69,8 @@ internal sealed class WasmVM(val shortName: String) {
             )
     }
 
-    object WasmEdge : WasmVM("WE") {
-        override val hasJsSupport = false
+    object WasmEdge : WasmVM("WasmEdge") {
+        override val entryPointIsJsFile = false
         override val property = "wasm.engine.path.WasmEdge"
 
         override fun run(
@@ -84,15 +84,14 @@ internal sealed class WasmVM(val shortName: String) {
                 *toolArgs.toTypedArray(),
                 "--enable-gc",
                 "--enable-exception-handling",
-                "--enable-function-reference",
                 entryFile,
-                "__start",
+                "startTest",
                 workingDirectory = workingDirectory,
             )
     }
 
     object NodeJs : WasmVM("NodeJs") {
-        override val hasJsSupport = true
+        override val entryPointIsJsFile = true
 
         override fun run(
             entryFile: String,

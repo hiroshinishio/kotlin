@@ -85,7 +85,7 @@ class WasiBoxRunner(
                     debugMode = debugMode,
                     useNewExceptionHandling = false,
                     failsIn = failsIn,
-                    entryFile = if (!vm.hasJsSupport) "$baseFileName.wasm" else collectedJsArtifacts.entryPath ?: "test.mjs",
+                    entryFile = if (!vm.entryPointIsJsFile) "$baseFileName.wasm" else collectedJsArtifacts.entryPath ?: "test.mjs",
                     jsFilePaths = jsFilePaths,
                     workingDirectory = dir
                 )
