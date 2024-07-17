@@ -136,6 +136,7 @@ kotlin {
                                 "-Xmultifile-parts-inherit",
                                 "-Xuse-14-inline-classes-mangling-scheme",
                                 "-Xno-new-java-annotation-targets",
+                                "-Xsuppress-missing-builtins-error",
                                 diagnosticNamesArg,
                             )
                         )
@@ -163,6 +164,7 @@ kotlin {
                                 "-Xexpect-actual-classes",
                                 "-Xmultifile-parts-inherit",
                                 "-Xno-new-java-annotation-targets",
+                                "-Xsuppress-missing-builtins-error",
                                 "-Xexplicit-api=strict",
                                 diagnosticNamesArg,
                             )
@@ -182,6 +184,7 @@ kotlin {
                                 "-Xallow-kotlin-package",
                                 "-Xmultifile-parts-inherit",
                                 "-Xno-new-java-annotation-targets",
+                                "-Xsuppress-missing-builtins-error",
                                 "-Xexplicit-api=strict",
                                 diagnosticNamesArg,
                             )
