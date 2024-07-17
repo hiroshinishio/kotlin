@@ -805,7 +805,8 @@ private fun GradleExternalDocumentationLinkBuilder.addWorkaroundForElementList(p
     if (pluginVariant == GradlePluginVariant.GRADLE_76 ||
         pluginVariant == GradlePluginVariant.GRADLE_80 ||
         pluginVariant == GradlePluginVariant.GRADLE_81 ||
-        pluginVariant == GradlePluginVariant.GRADLE_82
+        pluginVariant == GradlePluginVariant.GRADLE_82 ||
+        pluginVariant == GradlePluginVariant.GRADLE_85
     ) {
         packageListUrl.set(URL("${pluginVariant.gradleApiJavadocUrl}element-list"))
     }
