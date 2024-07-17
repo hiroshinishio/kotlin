@@ -87,11 +87,6 @@ object FirJsExportDeclarationChecker : FirBasicDeclarationChecker(MppCheckerKind
                     return
                 }
 
-                if (declaration.isSuspend) {
-                    reportWrongExportedDeclaration("suspend function")
-                    return
-                }
-
                 if (declaration is FirConstructor && !declaration.isPrimary && !hasJsName) {
                     reportWrongExportedDeclaration("secondary constructor without @JsName")
                 }

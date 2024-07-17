@@ -38,7 +38,8 @@ import org.jetbrains.kotlin.types.typeUtil.*
 
 class JsExportDeclarationChecker(
     private val includeUnsignedNumbers: Boolean,
-    private val allowCompanionInInterface: Boolean
+    private val allowCompanionInInterface: Boolean,
+    private val allowSuspendFunctions: Boolean
 ) : DeclarationChecker {
     override fun check(declaration: KtDeclaration, descriptor: DeclarationDescriptor, context: DeclarationCheckerContext) {
         val trace = context.trace
@@ -87,7 +88,7 @@ class JsExportDeclarationChecker(
                     return
                 }
 
-                if (descriptor.isSuspend) {
+                if (!allowSuspendFunctions && descriptor.isSuspend) {
                     reportWrongExportedDeclaration("suspend function")
                     return
                 }

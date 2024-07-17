@@ -75,3 +75,6 @@ fun defaultParametersAtTheBegining(a: String = "Default Value", b: String) = "$a
 
 @JsExport
 fun nonDefaultParameterInBetween(a: String = "Default A", b: String, c: String = "Default C") = "$a and $b and $c"
+
+@JsExport
+suspend fun someSuspendFunction(value: String) = "Suspend '$value'"

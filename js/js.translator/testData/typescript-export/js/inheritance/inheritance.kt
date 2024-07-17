@@ -213,3 +213,22 @@ fun <T> acceptMoreGenericForthLike(forth: T) where T: IB, T: IC, T: Second {}
 
 @JsExport
 val fifth = Fifth<Boolean>()
+
+
+@JsExport
+interface FirstSuspendOwner {
+   suspend fun first(): String
+}
+
+//@JsExport
+open class SecondSuspendOwner : FirstSuspendOwner {
+    override suspend fun first() = "First"
+    open suspend fun second() = "Second"
+}
+
+@JsExport
+class ThiredSuspendOwner : SecondSuspendOwner() {
+    override suspend fun first() = "patched first"
+    override suspend fun second() = "patched second"
+    suspend fun thrid() = "third"
+}

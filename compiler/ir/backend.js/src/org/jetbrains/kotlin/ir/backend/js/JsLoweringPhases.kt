@@ -91,6 +91,12 @@ private val collectClassDefaultConstructorsPhase = makeIrModulePhase(
     description = "Collect classes default constructors to add it to metadata on code generating phase"
 )
 
+private val prepareSuspendFunctionsToExportLowering = makeIrModulePhase(
+    ::PrepareSuspendFunctionsToExportLowering,
+    name = "PrepareSuspendFunctionsToExportLowering",
+    description = "Add exportable bridges for suspend functions that are exported",
+)
+
 private val prepareCollectionsToExportLowering = makeIrModulePhase(
     ::PrepareCollectionsToExportLowering,
     name = "PrepareCollectionsToExportLowering",
@@ -883,6 +889,7 @@ fun getJsLowerings(
     copyInlineFunctionBodyLoweringPhase,
     removeInlineDeclarationsWithReifiedTypeParametersLoweringPhase,
     replaceSuspendIntrinsicLowering,
+    prepareSuspendFunctionsToExportLowering,
     prepareCollectionsToExportLowering,
     preventExportOfSyntheticDeclarationsLowering,
     jsStaticLowering,
