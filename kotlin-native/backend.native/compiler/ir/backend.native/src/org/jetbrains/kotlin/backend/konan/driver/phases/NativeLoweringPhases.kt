@@ -142,11 +142,6 @@ private val annotationImplementationPhase = createFileLoweringPhase(
         description = "Create synthetic annotations implementations and use them in annotations constructor calls"
 )
 
-private val lowerBeforeInlinePhase = createFileLoweringPhase(
-        ::TypeOfLowering,
-        name = "LowerBeforeInline",
-        description = "Special operations processing before inlining"
-)
 
 private val arrayConstructorPhase = createFileLoweringPhase(
         ::ArrayConstructorLowering,
@@ -403,7 +398,7 @@ private val inlineOnlyPrivateFunctionsPhase = createFileLoweringPhase(
         },
         name = "InlineOnlyPrivateFunctions",
         description = "The first phase of inlining (inline only private functions)",
-        prerequisite = setOf(lowerBeforeInlinePhase, arrayConstructorPhase, extractLocalClassesFromInlineBodies)
+        prerequisite = setOf(arrayConstructorPhase, extractLocalClassesFromInlineBodies)
 )
 
 internal val syntheticAccessorGenerationPhase = createFileLoweringPhase(
@@ -419,7 +414,7 @@ internal val inlineAllFunctionsPhase = createFileLoweringPhase(
         },
         name = "InlineAllFunctions",
         description = "The second phase of inlining (inline all functions)",
-        prerequisite = setOf(lowerBeforeInlinePhase, arrayConstructorPhase, extractLocalClassesFromInlineBodies)
+        prerequisite = setOf(arrayConstructorPhase, extractLocalClassesFromInlineBodies)
 )
 
 private val interopPhase = createFileLoweringPhase(
@@ -602,7 +597,6 @@ private val constEvaluationPhase = createFileLoweringPhase(
 )
 
 internal fun PhaseEngine<NativeGenerationState>.getLoweringsUpToAndIncludingSyntheticAccessors(): LoweringList = listOfNotNull(
-        lowerBeforeInlinePhase,
         lateinitPhase,
         sharedVariablesPhase,
         lowerOuterThisInInlineFunctionsPhase,

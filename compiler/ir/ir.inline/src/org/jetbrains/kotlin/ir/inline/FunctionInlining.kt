@@ -44,10 +44,10 @@ interface CallInlinerStrategy {
      *
      * @return new node to insert instead of typeOf call.
      */
-    fun postProcessTypeOf(expression: IrCall, nonSubstitutedTypeArgument: IrType): IrCall
+    fun postProcessTypeOf(expression: IrCall, nonSubstitutedTypeArgument: IrType): IrExpression
 
     object DEFAULT : CallInlinerStrategy {
-        override fun postProcessTypeOf(expression: IrCall, nonSubstitutedTypeArgument: IrType): IrCall {
+        override fun postProcessTypeOf(expression: IrCall, nonSubstitutedTypeArgument: IrType): IrExpression {
             return expression.apply {
                 putTypeArgument(0, nonSubstitutedTypeArgument)
             }
@@ -130,6 +130,9 @@ open class FunctionInlining(
 
         val actualCallee = inlineFunctionResolver.getFunctionDeclaration(calleeSymbol)
         if (actualCallee?.body == null) {
+            if (expression is IrCall && Symbols.isTypeOfIntrinsic(calleeSymbol)) {
+                return inlineFunctionResolver.callInlinerStrategy.postProcessTypeOf(expression, expression.getTypeArgument(0)!!)
+            }
             return expression
         }
 

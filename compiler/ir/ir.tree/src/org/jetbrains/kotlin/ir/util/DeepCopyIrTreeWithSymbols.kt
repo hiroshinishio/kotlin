@@ -550,7 +550,7 @@ open class DeepCopyIrTreeWithSymbols(
             expression.superQualifierSymbol?.let(symbolRemapper::getReferencedClass)
         ).processAttributes(expression)
 
-    override fun visitCall(expression: IrCall): IrCall =
+    override fun visitCall(expression: IrCall): IrExpression =
         shallowCopyCall(expression).apply {
             copyRemappedTypeArgumentsFrom(expression)
             transformValueArguments(expression)

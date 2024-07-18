@@ -5,6 +5,7 @@
 
 package org.jetbrains.kotlin.backend.common
 
+import org.jetbrains.kotlin.backend.common.ir.Symbols
 import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.declarations.*
 import org.jetbrains.kotlin.ir.expressions.*
@@ -39,7 +40,7 @@ internal class NoInlineFunctionUseSitesValidator(
     private fun checkFunctionUseSite(expression: IrMemberAccessExpression<IrFunctionSymbol>) {
         val function = expression.symbol.owner
         if (!function.isInline || inlineFunctionUseSiteChecker.isPermitted(expression)) return
-
+        if (Symbols.isTypeOfIntrinsic(function.symbol)) return
         reportError(function, expression)
     }
 

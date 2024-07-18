@@ -13,6 +13,7 @@ import org.jetbrains.kotlin.ir.declarations.IrTypeParametersContainer
 import org.jetbrains.kotlin.ir.declarations.copyAttributes
 import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.expressions.IrConstructorCall
+import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.expressions.impl.IrCallImpl
 import org.jetbrains.kotlin.ir.symbols.IrClassifierSymbol
 import org.jetbrains.kotlin.ir.symbols.IrTypeParameterSymbol
@@ -167,7 +168,7 @@ internal class InlineFunctionBodyPreprocessor(
             }
         }
 
-        override fun visitCall(expression: IrCall): IrCall {
+        override fun visitCall(expression: IrCall): IrExpression {
             val expressionCopy = super.visitCall(expression)
             if (Symbols.isTypeOfIntrinsic(expression.symbol)) {
                 // We should neither erase nor substitute non-reified type parameters in the `typeOf` call so that reflection is able
