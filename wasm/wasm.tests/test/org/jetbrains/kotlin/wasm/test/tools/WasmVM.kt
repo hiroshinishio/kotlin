@@ -13,14 +13,12 @@ import kotlin.test.fail
 
 private val toolLogsEnabled: Boolean = getBoolean("kotlin.js.test.verbose")
 
-internal sealed class WasmVM(val shortName: String) {
-    val name: String = javaClass.simpleName
-    open val property = "javascript.engine.path.$name"
-    protected val tool by lazy(LazyThreadSafetyMode.NONE) {
-        ExternalTool(System.getProperty(property))
-    }
-
-    abstract val entryPointIsJsFile: Boolean
+internal sealed class WasmVM(
+    val shortName: String,
+    val property: String,
+    val entryPointIsJsFile: Boolean
+) {
+    protected val tool = ExternalTool(System.getProperty(property))
 
     abstract fun run(
         entryFile: String,
@@ -30,9 +28,7 @@ internal sealed class WasmVM(val shortName: String) {
         toolArgs: List<String> = emptyList(),
     ): String
 
-    object V8 : WasmVM("V8") {
-        override val entryPointIsJsFile = true
-
+    object V8 : WasmVM(shortName = "V8", property = "javascript.engine.path.V8", entryPointIsJsFile = true) {
         override fun run(
             entryFile: String,
             jsFiles: List<String>,
@@ -50,9 +46,7 @@ internal sealed class WasmVM(val shortName: String) {
             )
     }
 
-    object SpiderMonkey : WasmVM("SM") {
-        override val entryPointIsJsFile = true
-
+    object SpiderMonkey : WasmVM(shortName = "SM", property = "javascript.engine.path.SpiderMonkey", entryPointIsJsFile = true) {
         override fun run(
             entryFile: String,
             jsFiles: List<String>,
@@ -69,10 +63,7 @@ internal sealed class WasmVM(val shortName: String) {
             )
     }
 
-    object WasmEdge : WasmVM("WasmEdge") {
-        override val entryPointIsJsFile = false
-        override val property = "wasm.engine.path.WasmEdge"
-
+    object WasmEdge : WasmVM(shortName = "WasmEdge", property = "wasm.engine.path.WasmEdge", entryPointIsJsFile = false) {
         override fun run(
             entryFile: String,
             jsFiles: List<String>,
@@ -90,9 +81,7 @@ internal sealed class WasmVM(val shortName: String) {
             )
     }
 
-    object NodeJs : WasmVM("NodeJs") {
-        override val entryPointIsJsFile = true
-
+    object NodeJs : WasmVM(shortName = "NodeJs", property = "javascript.engine.path.NodeJs", entryPointIsJsFile = true) {
         override fun run(
             entryFile: String,
             jsFiles: List<String>,

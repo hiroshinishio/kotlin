@@ -152,9 +152,11 @@ internal fun WasmVM.runWithCaughtExceptions(
     jsFilePaths: List<String>,
     workingDirectory: File,
 ): Throwable? {
+    val vmName = javaClass.simpleName
+
     try {
         if (debugMode >= DebugMode.DEBUG) {
-            println(" ------ Run in ${name}" + if (shortName in failsIn) " (expected to fail)" else "")
+            println(" ------ Run in $vmName" + if (shortName in failsIn) " (expected to fail)" else "")
         }
         run(
             "./${entryFile}",
@@ -163,7 +165,7 @@ internal fun WasmVM.runWithCaughtExceptions(
             useNewExceptionHandling = useNewExceptionHandling,
         )
         if (shortName in failsIn) {
-            return AssertionError("The test expected to fail in ${name}. Please update the testdata.")
+            return AssertionError("The test expected to fail in ${vmName}. Please update the testdata.")
         }
     } catch (e: Throwable) {
         if (shortName !in failsIn) {
