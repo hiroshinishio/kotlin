@@ -15,6 +15,7 @@ import org.jetbrains.kotlin.backend.konan.ir.KonanSymbols
 import org.jetbrains.kotlin.backend.konan.llvm.*
 import org.jetbrains.kotlin.backend.konan.llvm.objc.ObjCCodeGenerator
 import org.jetbrains.kotlin.backend.konan.llvm.objc.ObjCDataGenerator
+import org.jetbrains.kotlin.backend.konan.lower.getConstructorImpl
 import org.jetbrains.kotlin.backend.konan.lower.getObjectClassInstanceFunction
 import org.jetbrains.kotlin.backend.konan.objcexport.*
 import org.jetbrains.kotlin.descriptors.ClassKind
@@ -934,7 +935,7 @@ private fun ObjCExportCodeGenerator.generateObjCImp(
         val llvmCallable = if (isVirtual) {
             codegen.getVirtualFunctionTrampoline(target as IrSimpleFunction)
         } else {
-            codegen.llvmFunction(target)
+            codegen.llvmFunction(target as? IrSimpleFunction ?: context.getConstructorImpl(target as IrConstructor))
         }
         call(llvmCallable, args, resultLifetime, exceptionHandler)
     }
@@ -1138,15 +1139,18 @@ private fun ObjCExportCodeGenerator.effectiveThrowsClasses(method: IrFunction, s
 private fun ObjCExportCodeGenerator.generateObjCImpForArrayConstructor(
         target: IrConstructor,
         methodBridge: MethodBridge
-): LlvmCallable = generateObjCImp(methodBridge, bridgeSuffix = target.computeSymbolName(), isDirect = true) { args, resultLifetime, exceptionHandler ->
-    val arrayInstance = callFromBridge(
-            llvm.allocArrayFunction,
-            listOf(target.constructedClass.llvmTypeInfoPtr, args.first()),
-            resultLifetime = Lifetime.ARGUMENT
-    )
+): LlvmCallable {
+    val targetImpl = context.getConstructorImpl(target)
+    return generateObjCImp(methodBridge, bridgeSuffix = targetImpl.computeSymbolName(), isDirect = true) { args, resultLifetime, exceptionHandler ->
+        val arrayInstance = callFromBridge(
+                llvm.allocArrayFunction,
+                listOf(target.constructedClass.llvmTypeInfoPtr, args.first()),
+                resultLifetime = Lifetime.ARGUMENT
+        )
 
-    call(target.llvmFunction, listOf(arrayInstance) + args, resultLifetime, exceptionHandler)
-    arrayInstance
+        call(targetImpl.llvmFunction, listOf(arrayInstance) + args, resultLifetime, exceptionHandler)
+        arrayInstance
+    }
 }
 
 // TODO: cache bridges.
