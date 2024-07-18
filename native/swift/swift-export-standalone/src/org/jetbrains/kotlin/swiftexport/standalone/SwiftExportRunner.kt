@@ -7,6 +7,7 @@ package org.jetbrains.kotlin.swiftexport.standalone
 
 import org.jetbrains.kotlin.analysis.api.symbols.KaClassLikeSymbol
 import org.jetbrains.kotlin.konan.target.Distribution
+import org.jetbrains.kotlin.name.ErrorProneFqNamesApi
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.FqNameUnsafe
 import org.jetbrains.kotlin.sir.*
@@ -77,6 +78,7 @@ public data class SwiftExportConfig(
         DEFAULT_BRIDGE_MODULE_NAME
     }
     internal val targetPackageFqName = settings[ROOT_PACKAGE]?.let { packageName ->
+        @OptIn(ErrorProneFqNamesApi::class)
         packageName.takeIf { FqNameUnsafe.isValid(it) }?.let { FqName(it) }
             ?.takeIf { it.pathSegments().all { it.toString().isValidSwiftIdentifier() } }
             ?: null.also {
