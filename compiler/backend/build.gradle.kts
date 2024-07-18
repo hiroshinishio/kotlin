@@ -12,7 +12,7 @@ dependencies {
     api(project(":compiler:serialization"))
     api(project(":compiler:backend.common.jvm"))
     compileOnly(intellijCore())
-    compileOnly(commonDependency("org.jetbrains.intellij.deps.fastutil:intellij-deps-fastutil"))
+    compileOnly(libs.intellij.fastutil)
     compileOnly(commonDependency("org.jetbrains.intellij.deps:asm-all"))
     compileOnly(libs.guava)
 }

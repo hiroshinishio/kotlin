@@ -21,7 +21,7 @@ dependencies {
 
     compileOnly(toolsJarApi())
     compileOnly(intellijCore())
-    compileOnly(commonDependency("org.jetbrains.intellij.deps.fastutil:intellij-deps-fastutil"))
+    compileOnly(libs.intellij.fastutil)
     compileOnly(commonDependency("org.jetbrains.intellij.deps:asm-all"))
     runtimeOnly(libs.kotlinx.coroutines.core)
 }

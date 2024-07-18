@@ -229,7 +229,7 @@ dependencies {
     fatJarContents(intellijCore())
     fatJarContents(commonDependency("org.jetbrains.intellij.deps.jna:jna")) { isTransitive = false }
     fatJarContents(commonDependency("org.jetbrains.intellij.deps.jna:jna-platform")) { isTransitive = false }
-    fatJarContents(commonDependency("org.jetbrains.intellij.deps.fastutil:intellij-deps-fastutil"))
+    fatJarContents(libs.intellij.fastutil)
     fatJarContents(commonDependency("org.lz4:lz4-java")) { isTransitive = false }
     fatJarContents(commonDependency("org.jetbrains.intellij.deps:asm-all")) { isTransitive = false }
     fatJarContents(libs.guava) { isTransitive = false }

@@ -19,7 +19,7 @@ dependencies {
     api(project(":kotlin-script-runtime"))
     api(commonDependency("io.javaslang","javaslang"))
     compileOnly(intellijCore())
-    compileOnly(commonDependency("org.jetbrains.intellij.deps.fastutil:intellij-deps-fastutil"))
+    compileOnly(libs.intellij.fastutil)
     compileOnly(libs.guava)
 }
 
