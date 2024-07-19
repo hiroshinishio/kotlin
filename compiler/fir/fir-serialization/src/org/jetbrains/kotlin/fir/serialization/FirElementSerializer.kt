@@ -152,12 +152,7 @@ class FirElementSerializer private constructor(
             builder.flags = flags
         }
 
-        builder.fqName = klass.containingScriptSymbolAttr?.let { containingScript ->
-            val scriptClassClassId =
-                klass.symbol.classId.relativeClassName.pathSegments()
-                    .fold(scriptClassId(containingScript.fir)) { acc, n -> acc.createNestedClassId(n) }
-            stringTable.getQualifiedClassNameIndex(scriptClassClassId)
-        } ?: getClassifierId(klass)
+        builder.fqName = getClassifierId(klass)
 
         for (typeParameter in klass.typeParameters) {
             if (typeParameter !is FirTypeParameter) continue
@@ -1241,8 +1236,15 @@ class FirElementSerializer private constructor(
         return declaration.visibility.normalize()
     }
 
-    private fun getClassifierId(declaration: FirClassLikeDeclaration): Int =
-        stringTable.getFqNameIndex(declaration)
+    private fun getClassifierId(declaration: FirClassLikeDeclaration): Int {
+        val baseClassId = declaration.symbol.classId
+
+        return declaration.containingScriptSymbolAttr?.let { containingScript ->
+            val scriptClassClassId = baseClassId.relativeClassName.pathSegments()
+                .fold(scriptClassId(containingScript.fir)) { acc, n -> acc.createNestedClassId(n) }
+            stringTable.getQualifiedClassNameIndex(scriptClassClassId)
+        } ?: stringTable.getFqNameIndex(declaration)
+    }
 
     private fun getClassifierId(classId: ClassId): Int =
         stringTable.getQualifiedClassNameIndex(classId)

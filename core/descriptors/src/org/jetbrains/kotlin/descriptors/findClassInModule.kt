@@ -30,10 +30,8 @@ fun ModuleDescriptor.findClassifierAcrossModuleDependencies(classId: ClassId): C
     var result = topLevelClass
     for (name in segments.subList(1, segments.size)) {
         if (result !is ClassDescriptor) return@withResolutionAnchor null
-        val unsubstitutedInnerClassesScope = result.unsubstitutedInnerClassesScope
-        val contributedClassifier = unsubstitutedInnerClassesScope
-            .getContributedClassifier(name, NoLookupLocation.FROM_DESERIALIZATION)
-        result = (contributedClassifier as? ClassDescriptor)
+        result = result.unsubstitutedInnerClassesScope
+            .getContributedClassifier(name, NoLookupLocation.FROM_DESERIALIZATION) as? ClassDescriptor
             ?: return@withResolutionAnchor null
     }
     return@withResolutionAnchor result
