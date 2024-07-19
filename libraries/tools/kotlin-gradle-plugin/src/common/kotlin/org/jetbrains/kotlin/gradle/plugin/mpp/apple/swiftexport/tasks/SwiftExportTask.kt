@@ -6,17 +6,18 @@
 package org.jetbrains.kotlin.gradle.plugin.mpp.apple.swiftexport.tasks
 
 import org.gradle.api.DefaultTask
-import org.gradle.api.artifacts.component.LibraryBinaryIdentifier
 import org.gradle.api.artifacts.component.ModuleComponentIdentifier
-import org.gradle.api.artifacts.component.ProjectComponentIdentifier
+import org.gradle.api.artifacts.result.ResolvedDependencyResult
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.FileSystemOperations
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
+import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.*
 import org.gradle.work.DisableCachingByDefault
 import org.gradle.workers.WorkerExecutor
+import org.jetbrains.kotlin.gradle.plugin.mpp.apple.swiftexport.SwiftExportedModuleVersionMetadata
 import org.jetbrains.kotlin.gradle.plugin.mpp.apple.swiftexport.internal.SwiftExportTaskParameters
 import org.jetbrains.kotlin.gradle.plugin.mpp.apple.swiftexport.internal.SwiftExportAction
 import org.jetbrains.kotlin.gradle.plugin.mpp.apple.swiftexport.internal.SwiftExportedModule
@@ -32,15 +33,27 @@ internal abstract class SwiftExportTask @Inject constructor(
     private val fileSystem: FileSystemOperations,
 ) : DefaultTask() {
 
+    internal abstract class ModuleInput {
+        @get:Input
+        abstract val moduleName: Property<String>
+
+        @get:Input
+        @get:Optional
+        abstract val flattenPackage: Property<String>
+
+        @get:InputFiles
+        @get:PathSensitive(PathSensitivity.RELATIVE)
+        abstract val artifact: RegularFileProperty
+    }
+
     @get:Internal
     abstract val configuration: Property<LazyResolvedConfiguration>
 
-    @get:Input
-    abstract val mainModuleName: Property<String>
+    @get:Nested
+    abstract val mainModuleInput: ModuleInput
 
-    @get:InputFiles
-    @get:PathSensitive(PathSensitivity.RELATIVE)
-    abstract val mainArtifact: RegularFileProperty
+    @get:Nested
+    abstract val exportedModules: SetProperty<SwiftExportedModuleVersionMetadata>
 
     @get:InputFiles
     @get:PathSensitive(PathSensitivity.RELATIVE)
@@ -77,12 +90,18 @@ internal abstract class SwiftExportTask @Inject constructor(
         }
     }
 
-    private fun swiftExportedModules(): Provider<List<SwiftExportedModule>> {
+    internal fun swiftExportedModules(): Provider<List<SwiftExportedModule>> {
         return configuration.map { configuration ->
-            configuration.swiftExportedModules()
+            configuration.swiftExportedModules(exportedModules.get())
         }.map { modules ->
             modules.toMutableList().apply {
-                add(SwiftExportedModule(mainModuleName.get(), mainArtifact.getFile()))
+                add(
+                    SwiftExportedModule(
+                        mainModuleInput.moduleName.get(),
+                        mainModuleInput.flattenPackage.orNull,
+                        mainModuleInput.artifact.getFile()
+                    )
+                )
             }
         }
     }
@@ -92,17 +111,35 @@ private val File.isCinteropKlib get() = extension == "klib" && nameWithoutExtens
 
 internal fun Collection<File>.filterNotCinteropKlibs(): List<File> = filterNot(File::isCinteropKlib)
 
-internal fun LazyResolvedConfiguration.swiftExportedModules(): List<SwiftExportedModule> {
+private fun LazyResolvedConfiguration.swiftExportedModules(exportedModules: Set<SwiftExportedModuleVersionMetadata>): List<SwiftExportedModule> {
     return allResolvedDependencies.filterNot { dependencyResult ->
         dependencyResult.resolvedVariant.owner.let { id -> id is ModuleComponentIdentifier && id.module == "kotlin-stdlib" }
-    }.map { it.selected }.distinct().map { component ->
-        val dependencyArtifacts = getArtifacts(component)
+    }.map { dependencyResult ->
+        findAndCreateSwiftExportedModule(exportedModules, dependencyResult)
+    }
+}
+
+private fun LazyResolvedConfiguration.findAndCreateSwiftExportedModule(
+    exportedModules: Set<SwiftExportedModuleVersionMetadata>,
+    resolvedDependency: ResolvedDependencyResult
+): SwiftExportedModule {
+    val resolvedModule = resolvedDependency.selected.moduleVersion
+        ?: throw AssertionError("Missing module version for dependency: $resolvedDependency")
+
+    val module = exportedModules.firstOrNull {
+        resolvedModule.name == it.moduleVersion.name &&
+                resolvedModule.group == it.moduleVersion.group &&
+                resolvedModule.version == it.moduleVersion.version
+    }
+
+    return if (module != null) {
+        val dependencyArtifacts = getArtifacts(resolvedDependency)
             .map { it.file }
             .filterNotCinteropKlibs()
 
         if (dependencyArtifacts.isEmpty() || dependencyArtifacts.size > 1) {
             throw AssertionError(
-                "Component $component ${
+                "Dependency $resolvedDependency ${
                     if (dependencyArtifacts.isEmpty())
                         "doesn't have suitable artifacts"
                     else
@@ -111,15 +148,12 @@ internal fun LazyResolvedConfiguration.swiftExportedModules(): List<SwiftExporte
             )
         }
 
-        Pair(component, dependencyArtifacts.single())
-    }.distinctBy { (_, artifact) ->
-        artifact
-    }.map { (component, artifact) ->
-        when (val dependencyModule = component.id) {
-            is ProjectComponentIdentifier -> dashSeparatedToUpperCamelCase(dependencyModule.projectName)
-            is ModuleComponentIdentifier -> dashSeparatedToUpperCamelCase(dependencyModule.moduleIdentifier.name)
-            is LibraryBinaryIdentifier -> dashSeparatedToUpperCamelCase(dependencyModule.libraryName)
-            else -> throw AssertionError("Unsupported component $component")
-        }.let { SwiftExportedModule(it, artifact) }
+        SwiftExportedModule(
+            module.moduleName.orElse(dashSeparatedToUpperCamelCase(module.moduleVersion.name)).get(),
+            module.flattenPackage.orNull,
+            dependencyArtifacts.single()
+        )
+    } else {
+        throw AssertionError("Couldn't find matching dependency for: $resolvedModule")
     }
 }
