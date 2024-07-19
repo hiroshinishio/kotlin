@@ -16319,6 +16319,12 @@ public class FirLightTreeOldFrontendDiagnosticsTestGenerated extends AbstractFir
       }
 
       @Test
+      @TestMetadata("dnnArgumentInferred.kt")
+      public void testDnnArgumentInferred() {
+        runTest("compiler/testData/diagnostics/tests/inference/dnnArgumentInferred.kt");
+      }
+
+      @Test
       @TestMetadata("dontThrowEmptyIntersectionException.kt")
       public void testDontThrowEmptyIntersectionException() {
         runTest("compiler/testData/diagnostics/tests/inference/dontThrowEmptyIntersectionException.kt");
@@ -16880,6 +16886,24 @@ public class FirLightTreeOldFrontendDiagnosticsTestGenerated extends AbstractFir
       @TestMetadata("nullableUpperBound.kt")
       public void testNullableUpperBound() {
         runTest("compiler/testData/diagnostics/tests/inference/nullableUpperBound.kt");
+      }
+
+      @Test
+      @TestMetadata("nullableVsDnnConstructor.kt")
+      public void testNullableVsDnnConstructor() {
+        runTest("compiler/testData/diagnostics/tests/inference/nullableVsDnnConstructor.kt");
+      }
+
+      @Test
+      @TestMetadata("nullableVsDnnFunction.kt")
+      public void testNullableVsDnnFunction() {
+        runTest("compiler/testData/diagnostics/tests/inference/nullableVsDnnFunction.kt");
+      }
+
+      @Test
+      @TestMetadata("nullableWithDnnConstructorNoTypeArgument.kt")
+      public void testNullableWithDnnConstructorNoTypeArgument() {
+        runTest("compiler/testData/diagnostics/tests/inference/nullableWithDnnConstructorNoTypeArgument.kt");
       }
 
       @Test
