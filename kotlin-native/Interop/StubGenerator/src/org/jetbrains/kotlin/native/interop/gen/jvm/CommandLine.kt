@@ -151,6 +151,9 @@ open class CInteropArguments(argParser: ArgParser =
 
     val disableExperimentalAnnotation by argParser.option(ArgType.Boolean, "Xdisable-experimental-annotation",
             description = "Don't add @ExperimentalForeignApi to generated Kotlin declarations")
+
+    val xcodeForSimdVfsOverlay by argParser.option(ArgType.String, "Xxcode-for-simd-vfsoverlay",
+            description = "Use simd headers from this Xcode to overlay on top of simd headers from current Xcode")
 }
 
 internal fun warn(msg: String) {

@@ -305,7 +305,19 @@ private fun processCLib(
 
     val imports = parseImports(allLibraryDependencies)
 
-    val library = buildNativeLibrary(tool, def, cinteropArguments, imports)
+    val xcodeForSimdVfsOverlay = cinteropArguments.xcodeForSimdVfsOverlay
+    val xcodeForSimdVfsOverlayArgs = if (xcodeForSimdVfsOverlay != null) {
+        prepareSimdVfsOverlayWorkaround(
+            temporaryRoot = Files.createTempDirectory("vfsOverlayHeaders").toFile().also { it.deleteOnExit() },
+            sdkRoot = tool.sysRoot,
+            target = tool.target,
+            xcodePath = File(xcodeForSimdVfsOverlay),
+        )
+    } else {
+        emptyList()
+    }
+
+    val library = buildNativeLibrary(tool, def, cinteropArguments, imports, xcodeForSimdVfsOverlayArgs)
 
     val plugin = Plugins.plugin(def.config.pluginName)
 
@@ -511,7 +523,8 @@ internal fun buildNativeLibrary(
         tool: ToolConfig,
         def: DefFile,
         arguments: CInteropArguments,
-        imports: Imports
+        imports: Imports,
+        xcodeForSimdVfsOverlayArgs: List<String>
 ): NativeLibrary {
     val additionalHeaders = (arguments.header).toTypedArray()
     val additionalCompilerOpts = (arguments.compilerOpts +
@@ -523,6 +536,7 @@ internal fun buildNativeLibrary(
         addAll(def.config.compilerOpts)
         addAll(tool.getDefaultCompilerOptsForLanguage(language))
         addAll(additionalCompilerOpts)
+        addAll(xcodeForSimdVfsOverlayArgs)
         addAll(getCompilerFlagsForVfsOverlay(arguments.headerFilterPrefix.toTypedArray(), def))
         add("-Wno-builtin-macro-redefined") // to suppress warning from predefinedMacrosRedefinitions(see below)
     }
@@ -596,3 +610,81 @@ fun parseKeyValuePairs(
         null
     }
 }.toMap()
+
+fun prepareSimdVfsOverlayWorkaround(
+        target: KonanTarget,
+        xcodePath: File,
+        temporaryRoot: File,
+        sdkRoot: String,
+): List<String> {
+    val sdkPath = dumpSdkPath(
+        target = target,
+        xcodePath = xcodePath
+    )
+    val filesToOverlay = listOf(
+        "simd/packed.h",
+        "simd/types.h",
+        "simd/quaternion.h",
+        "simd/matrix_types.h",
+        "simd/matrix.h",
+        "simd/conversion.h",
+        "simd/vector_make.h",
+        "simd/common.h",
+        "simd/logic.h",
+        "simd/simd.h",
+        "simd/vector_types.h",
+        "simd/math.h",
+        "simd/extern.h",
+        "simd/vector.h",
+        "simd/geometry.h",
+        "simd/base.h",
+    )
+
+    val contents = filesToOverlay.map {
+        "{ 'external-contents': \"${sdkPath.resolve("usr/include").resolve(it).path}\", 'name': \"${it}\", 'type': 'file' }"
+    }.joinToString(",\n")
+
+    val headers = temporaryRoot.resolve("overlay.yaml")
+    headers.writeText(
+            """
+            {
+              'case-sensitive': 'false',
+              'roots': [
+                {
+                  "contents": [
+                    ${contents}
+                  ],
+                  'name': "${sdkRoot}/usr/include",
+                  'type': 'directory'
+                },
+              ],
+              'version': 0,
+            }
+        """.trimIndent()
+    )
+    return listOf("-ivfsoverlay", headers.path)
+}
+
+fun dumpSdkPath(
+        target: KonanTarget,
+        xcodePath: File,
+): java.io.File {
+    val sdk = when (target) {
+        KonanTarget.MACOS_ARM64, KonanTarget.MACOS_X64 -> "macosx"
+        KonanTarget.IOS_SIMULATOR_ARM64, KonanTarget.IOS_X64 -> "iphonesimulator"
+        KonanTarget.IOS_ARM64 -> "iphoneos"
+        KonanTarget.WATCHOS_X64, KonanTarget.WATCHOS_SIMULATOR_ARM64 -> "watchsimulator"
+        KonanTarget.WATCHOS_ARM32, KonanTarget.WATCHOS_ARM64, KonanTarget.WATCHOS_DEVICE_ARM64 -> "watchos"
+        KonanTarget.TVOS_ARM64 -> "appletvos"
+        KonanTarget.TVOS_X64, KonanTarget.TVOS_SIMULATOR_ARM64 -> "appletvsimulator"
+        else -> throw Exception("Can't dump sdk for: ${target}")
+    }
+    return java.io.File(
+        Command(
+            initialCommand = listOf("/usr/bin/xcrun", "--sdk", sdk, "--show-sdk-path"),
+            environmentOverrides = mapOf(
+                "DEVELOPER_DIR" to xcodePath.path,
+            )
+        ).getOutputLines().first()
+    )
+}
