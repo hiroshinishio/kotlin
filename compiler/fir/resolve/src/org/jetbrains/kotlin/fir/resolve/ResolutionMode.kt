@@ -120,9 +120,21 @@ fun ResolutionMode.contextType(components: BodyResolveComponents): FirTypeRef? =
 
 fun ResolutionMode.fullyExpandedClassFromContext(components: BodyResolveComponents, session: FirSession): FirRegularClass? =
     contextType(components)
-        ?.coneTypeOrNull?.fullyExpandedType(session)
+        ?.coneTypeOrNull
+        ?.intersectWithoutTypeParameters(session)
+        ?.fullyExpandedType(session)
         ?.unwrapFlexibleAndDefinitelyNotNull()
         ?.toRegularClassSymbol(session)?.fir
+
+fun ConeKotlinType.intersectWithoutTypeParameters(session: FirSession): ConeKotlinType {
+    val inputTypes = when (this) {
+        is ConeIntersectionType -> intersectedTypes
+        else -> listOf(this)
+    }.filterNot {
+        it is ConeTypeParameterType || (it is ConeDefinitelyNotNullType && it.original is ConeTypeParameterType)
+    }
+    return if (inputTypes.isEmpty()) this else ConeTypeIntersector.intersectTypes(session.typeContext, inputTypes)
+}
 
 fun withExpectedType(expectedTypeRef: FirTypeRef, expectedTypeMismatchIsReportedInChecker: Boolean = false): ResolutionMode = when {
     expectedTypeRef is FirResolvedTypeRef -> ResolutionMode.WithExpectedType(

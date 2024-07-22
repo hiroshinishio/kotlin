@@ -5316,6 +5316,12 @@ public class DiagnosticCompilerTestFirTestdataTestGenerated extends AbstractDiag
       }
 
       @Test
+      @TestMetadata("inheritance.kt")
+      public void testInheritance() {
+        runTest("compiler/fir/analysis-tests/testData/resolve/unqualifiedEnum/inheritance.kt");
+      }
+
+      @Test
       @TestMetadata("lambas.kt")
       public void testLambas() {
         runTest("compiler/fir/analysis-tests/testData/resolve/unqualifiedEnum/lambas.kt");
@@ -5340,9 +5346,21 @@ public class DiagnosticCompilerTestFirTestdataTestGenerated extends AbstractDiag
       }
 
       @Test
+      @TestMetadata("pcla.kt")
+      public void testPcla() {
+        runTest("compiler/fir/analysis-tests/testData/resolve/unqualifiedEnum/pcla.kt");
+      }
+
+      @Test
       @TestMetadata("priority.kt")
       public void testPriority() {
         runTest("compiler/fir/analysis-tests/testData/resolve/unqualifiedEnum/priority.kt");
+      }
+
+      @Test
+      @TestMetadata("smartcast.kt")
+      public void testSmartcast() {
+        runTest("compiler/fir/analysis-tests/testData/resolve/unqualifiedEnum/smartcast.kt");
       }
 
       @Test
