@@ -80,7 +80,7 @@ enabledTargets(platformManager).forEach { target ->
         }
         installTasks.add(klibInstallTask)
 
-        if (false) {
+        if (target.name in cacheableTargetNames) {
             val cacheTask = tasks.register("${libName}Cache", KonanCacheTask::class.java) {
                 notCompatibleWithConfigurationCache("project used in execution time")
                 this.target = targetName
@@ -106,7 +106,7 @@ enabledTargets(platformManager).forEach { target ->
         dependsOn(installTasks)
     }
 
-    if (false) {
+    if (target.name in cacheableTargetNames) {
         tasks.register("${targetName}Cache") {
             dependsOn(cacheTasks)
 
