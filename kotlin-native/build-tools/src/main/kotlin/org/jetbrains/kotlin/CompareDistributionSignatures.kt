@@ -186,7 +186,7 @@ abstract class CompareDistributionSignatures : DefaultTask() {
     private fun getKlibSignatures(klib: File): List<String> {
         val tool = if (HostManager.hostIsMingw) "klib.bat" else "klib"
         val klibTool = File("$newDistribution/bin/$tool").absolutePath
-        val args = listOf("dump-metadata-signatures", klib.absolutePath, "-signature-version", "1")
+        val args = listOf("dump-metadata-signatures", klib.absolutePath, "-signature-version", "2")
         ByteArrayOutputStream().use { stdout ->
             project.exec {
                 commandLine(klibTool, *args.toTypedArray())
