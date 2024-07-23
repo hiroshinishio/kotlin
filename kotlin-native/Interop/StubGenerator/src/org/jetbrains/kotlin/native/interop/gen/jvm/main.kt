@@ -638,10 +638,17 @@ fun prepareSimdVfsOverlayWorkaround(
         "simd/vector.h",
         "simd/geometry.h",
         "simd/base.h",
+//        "simd/module.modulemap",
     )
 
-    val contents = filesToOverlay.map {
-        "{ 'external-contents': \"${sdkPath.resolve("usr/include").resolve(it).path}\", 'name': \"${it}\", 'type': 'file' }"
+    val copies = filesToOverlay.map {
+        val simdFile = sdkPath.resolve("usr/include").resolve(it)
+        val temporaryCopy = temporaryRoot.resolve(simdFile.name)
+        simdFile.copyTo(temporaryCopy)
+        return@map Pair(temporaryCopy, it)
+    }
+    val contents = copies.map {
+        "{ 'external-contents': \"${it.first.path}\", 'name': \"${it.second}\", 'type': 'file' }"
     }.joinToString(",\n")
 
     val headers = temporaryRoot.resolve("overlay.yaml")

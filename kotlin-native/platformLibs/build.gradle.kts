@@ -69,7 +69,7 @@ enabledTargets(platformManager).forEach { target ->
                     "-no-default-libs",
                     "-no-endorsed-libs",
             )
-            if (target.family.isAppleFamily && target.architecture == Architecture.X64) {
+            if (target.family.isAppleFamily) {
                 this.extraOpts.addAll(
                     providers.gradleProperty("konan.xcodeForSimdOverlay").map {
                         listOf("-Xxcode-for-simd-vfsoverlay", it)
