@@ -30,7 +30,7 @@ FILE fqName:<root> fileName:/internalStdlibOverride.kt
       VALUE_PARAMETER name:key index:0 type:kotlin.Int
     FUN FAKE_OVERRIDE name:containsValue visibility:public modality:OPEN <> ($this:kotlin.collections.AbstractMap<kotlin.Int, kotlin.Int>, value:kotlin.Int) returnType:kotlin.Boolean [fake_override]
       overridden:
-        public open fun containsValue (value: V of kotlin.collections.AbstractMap): kotlin.Boolean declared in kotlin.collections.AbstractMap
+        public open fun containsValue (value: @[UnsafeVariance] V of kotlin.collections.AbstractMap): kotlin.Boolean declared in kotlin.collections.AbstractMap
       $this: VALUE_PARAMETER name:<this> type:kotlin.collections.AbstractMap<kotlin.Int, kotlin.Int>
       VALUE_PARAMETER name:value index:0 type:kotlin.Int
     FUN FAKE_OVERRIDE name:equals visibility:public modality:OPEN <> ($this:kotlin.collections.AbstractMap<kotlin.Int, kotlin.Int>, other:kotlin.Any?) returnType:kotlin.Boolean [fake_override,operator]
