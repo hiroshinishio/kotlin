@@ -1586,7 +1586,7 @@ abstract class E : Java1, Java2 {
   //   Mangled name: E#removeAt(kotlin.Int){}kotlin.Any?
   //   Public signature: /E.removeAt|-8980852212530989044[0]
   //   Public signature debug description: removeAt(kotlin.Int){}kotlin.Any?
-  abstract /* fake */ override fun removeAt(index: Int): Any?
+  abstract /* fake */ override operator fun removeAt(index: Int): Any?
 
   // CHECK JVM_IR:
   //   Mangled name: E#removeIf(java.util.function.Predicate<kotlin.Any?>{EnhancedNullability}){}kotlin.Boolean
@@ -1807,7 +1807,7 @@ abstract class F : E {
   //   Mangled name: F#removeAt(kotlin.Int){}kotlin.Any?
   //   Public signature: /F.removeAt|-8980852212530989044[0]
   //   Public signature debug description: removeAt(kotlin.Int){}kotlin.Any?
-  abstract /* fake */ override fun removeAt(index: Int): Any?
+  abstract /* fake */ override operator fun removeAt(index: Int): Any?
 
   // CHECK JVM_IR:
   //   Mangled name: F#removeIf(java.util.function.Predicate<kotlin.Any?>{EnhancedNullability}){}kotlin.Boolean

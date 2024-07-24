@@ -107,7 +107,7 @@ FILE fqName:<root> fileName:/1.kt
         public open fun removeAll (elements: kotlin.collections.Collection<@[FlexibleNullability] T of <root>.Java1?>): kotlin.Boolean declared in <root>.Java1
       $this: VALUE_PARAMETER name:<this> type:kotlin.collections.MutableList<@[FlexibleNullability] T of <root>.A?>
       VALUE_PARAMETER name:elements index:0 type:kotlin.collections.Collection<@[FlexibleNullability] T of <root>.A?>
-    FUN FAKE_OVERRIDE name:removeAt visibility:public modality:ABSTRACT <> ($this:kotlin.collections.AbstractMutableList<@[FlexibleNullability] T of <root>.A?>, index:kotlin.Int) returnType:@[FlexibleNullability] T of <root>.A? [fake_override]
+    FUN FAKE_OVERRIDE name:removeAt visibility:public modality:ABSTRACT <> ($this:kotlin.collections.AbstractMutableList<@[FlexibleNullability] T of <root>.A?>, index:kotlin.Int) returnType:@[FlexibleNullability] T of <root>.A? [fake_override,operator]
       overridden:
         public abstract fun removeAt (index: kotlin.Int): @[FlexibleNullability] T of <root>.Java1? declared in <root>.Java1
       $this: VALUE_PARAMETER name:<this> type:kotlin.collections.AbstractMutableList<@[FlexibleNullability] T of <root>.A?>
@@ -357,7 +357,7 @@ FILE fqName:<root> fileName:/1.kt
       overridden:
         public open fun toString (): kotlin.String declared in <root>.Java1
       $this: VALUE_PARAMETER name:<this> type:kotlin.Any
-    FUN name:removeAt visibility:public modality:OPEN <> ($this:<root>.B<T of <root>.B>, index:kotlin.Int) returnType:T of <root>.B
+    FUN name:removeAt visibility:public modality:OPEN <> ($this:<root>.B<T of <root>.B>, index:kotlin.Int) returnType:T of <root>.B [operator]
       overridden:
         public abstract fun removeAt (index: kotlin.Int): @[FlexibleNullability] T of <root>.Java1? declared in <root>.Java1
       $this: VALUE_PARAMETER name:<this> type:<root>.B<T of <root>.B>

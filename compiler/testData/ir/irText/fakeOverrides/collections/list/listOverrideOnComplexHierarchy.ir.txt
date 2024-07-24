@@ -1286,7 +1286,7 @@ FILE fqName:<root> fileName:/1.kt
         public open fun removeAll (elements: @[RawType] kotlin.collections.Collection<kotlin.Any?>): kotlin.Boolean declared in <root>.Java1
       $this: VALUE_PARAMETER name:<this> type:@[RawType] kotlin.collections.MutableList<kotlin.Any?>
       VALUE_PARAMETER name:elements index:0 type:@[RawType] kotlin.collections.Collection<kotlin.Any?>
-    FUN FAKE_OVERRIDE name:removeAt visibility:public modality:ABSTRACT <> ($this:@[RawType] kotlin.collections.AbstractMutableList<kotlin.Any?>, index:kotlin.Int) returnType:kotlin.Any? [fake_override]
+    FUN FAKE_OVERRIDE name:removeAt visibility:public modality:ABSTRACT <> ($this:@[RawType] kotlin.collections.AbstractMutableList<kotlin.Any?>, index:kotlin.Int) returnType:kotlin.Any? [fake_override,operator]
       overridden:
         public abstract fun removeAt (index: kotlin.Int): kotlin.Any? declared in <root>.Java1
       $this: VALUE_PARAMETER name:<this> type:@[RawType] kotlin.collections.AbstractMutableList<kotlin.Any?>
@@ -1465,7 +1465,7 @@ FILE fqName:<root> fileName:/1.kt
         public open fun removeAll (elements: @[RawType] kotlin.collections.Collection<kotlin.Any?>): kotlin.Boolean declared in <root>.E
       $this: VALUE_PARAMETER name:<this> type:@[RawType] kotlin.collections.MutableList<kotlin.Any?>
       VALUE_PARAMETER name:elements index:0 type:@[RawType] kotlin.collections.Collection<kotlin.Any?>
-    FUN FAKE_OVERRIDE name:removeAt visibility:public modality:ABSTRACT <> ($this:@[RawType] kotlin.collections.AbstractMutableList<kotlin.Any?>, index:kotlin.Int) returnType:kotlin.Any? [fake_override]
+    FUN FAKE_OVERRIDE name:removeAt visibility:public modality:ABSTRACT <> ($this:@[RawType] kotlin.collections.AbstractMutableList<kotlin.Any?>, index:kotlin.Int) returnType:kotlin.Any? [fake_override,operator]
       overridden:
         public abstract fun removeAt (index: kotlin.Int): kotlin.Any? declared in <root>.E
       $this: VALUE_PARAMETER name:<this> type:@[RawType] kotlin.collections.AbstractMutableList<kotlin.Any?>

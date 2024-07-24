@@ -134,7 +134,7 @@ abstract class A<T : Any?> : Java1<T> {
   //   Mangled name: A#removeAt(kotlin.Int){}1:0?
   //   Public signature: /A.removeAt|5328007976403793869[0]
   //   Public signature debug description: removeAt(kotlin.Int){}1:0?
-  abstract /* fake */ override fun removeAt(index: Int): T?
+  abstract /* fake */ override operator fun removeAt(index: Int): T?
 
   // CHECK JVM_IR:
   //   Mangled name: A#removeIf(java.util.function.Predicate<in|1:0?{EnhancedNullability}>{EnhancedNullability}){}kotlin.Boolean
@@ -432,7 +432,7 @@ class B<T : Any?> : Java1<T> {
   //   Mangled name: B#removeAt(kotlin.Int){}1:0
   //   Public signature: /B.removeAt|-5838685616663854072[0]
   //   Public signature debug description: removeAt(kotlin.Int){}1:0
-  override fun removeAt(index: Int): T
+  override operator fun removeAt(index: Int): T
 
   // CHECK:
   //   Mangled name: B{}size
