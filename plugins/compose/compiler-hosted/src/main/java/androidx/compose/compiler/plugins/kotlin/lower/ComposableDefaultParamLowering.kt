@@ -35,10 +35,7 @@ import org.jetbrains.kotlin.ir.declarations.IrSimpleFunction
 import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.symbols.impl.IrSimpleFunctionSymbolImpl
-import org.jetbrains.kotlin.ir.util.DeepCopySymbolRemapper
-import org.jetbrains.kotlin.ir.util.addChild
-import org.jetbrains.kotlin.ir.util.copyAnnotationsFrom
-import org.jetbrains.kotlin.ir.util.createImplicitParameterDeclarationWithWrappedDescriptor
+import org.jetbrains.kotlin.ir.util.*
 import org.jetbrains.kotlin.name.Name
 
 /**
@@ -218,20 +215,23 @@ class ComposableDefaultParamLowering(
         )
         wrapper.copyAnnotationsFrom(source)
         wrapper.copyParametersFrom(source)
+
         wrapper.valueParameters.forEach {
             it.defaultValue?.transformChildrenVoid()
         }
+
         // move receiver parameters to value parameters
-        val dispatcherReceiver = wrapper.dispatchReceiverParameter
+        var dispatcherReceiver = wrapper.dispatchReceiverParameter
         var index = wrapper.valueParameters.size
         if (dispatcherReceiver != null) {
-            dispatcherReceiver.index = index++
+            dispatcherReceiver = dispatcherReceiver.copyTo(wrapper, index = index++)
             wrapper.valueParameters += dispatcherReceiver
             wrapper.dispatchReceiverParameter = null
         }
-        val extensionReceiver = wrapper.extensionReceiverParameter
+
+        var extensionReceiver = wrapper.extensionReceiverParameter
         if (extensionReceiver != null) {
-            extensionReceiver.index = index
+            extensionReceiver = extensionReceiver.copyTo(wrapper, index = index)
             wrapper.valueParameters += extensionReceiver
             wrapper.extensionReceiverParameter = null
         }
