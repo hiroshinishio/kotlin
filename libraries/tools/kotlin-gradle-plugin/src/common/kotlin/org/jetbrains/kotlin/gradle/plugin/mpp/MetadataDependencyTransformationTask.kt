@@ -112,7 +112,7 @@ open class MetadataDependencyTransformationTask
         }
 
     private fun MetadataDependencyResolution.KeepOriginalDependency.toTransformedLibrariesRecords(): List<TransformedMetadataLibraryRecord> {
-        return transformationParameters.resolvedMetadataConfiguration.getArtifacts(dependency).map {
+        return transformationParameters.getLazyResolvableMetadataConfiguration().getArtifacts(dependency).map {
             TransformedMetadataLibraryRecord(
                 moduleId = dependency.id.serializableUniqueKey,
                 file = it.file.absolutePath,

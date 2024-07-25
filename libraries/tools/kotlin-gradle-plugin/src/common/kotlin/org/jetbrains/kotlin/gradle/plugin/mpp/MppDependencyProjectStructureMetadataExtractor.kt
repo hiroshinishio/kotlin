@@ -5,6 +5,7 @@
 
 package org.jetbrains.kotlin.gradle.plugin.mpp
 
+import org.gradle.api.artifacts.component.ComponentIdentifier
 import java.io.File
 import java.io.InputStream
 import java.util.zip.ZipFile
@@ -17,7 +18,7 @@ sealed class MppDependencyProjectStructureMetadataExtractor {
 }
 
 internal abstract class AbstractProjectMppDependencyProjectStructureMetadataExtractor(
-    val projectPath: String,
+    val moduleId: ComponentIdentifier,
 ) : MppDependencyProjectStructureMetadataExtractor()
 
 @Deprecated(
@@ -25,17 +26,17 @@ internal abstract class AbstractProjectMppDependencyProjectStructureMetadataExtr
     replaceWith = ReplaceWith("ProjectMppDependencyProjectStructureMetadataExtractor")
 )
 internal class ProjectMppDependencyProjectStructureMetadataExtractorDeprecated(
-    projectPath: String,
+    moduleId: ComponentIdentifier,
     private val projectStructureMetadataProvider: () -> KotlinProjectStructureMetadata?,
-) : AbstractProjectMppDependencyProjectStructureMetadataExtractor(projectPath) {
+) : AbstractProjectMppDependencyProjectStructureMetadataExtractor(moduleId = moduleId) {
 
     override fun getProjectStructureMetadata(): KotlinProjectStructureMetadata? = projectStructureMetadataProvider()
 }
 
 internal class ProjectMppDependencyProjectStructureMetadataExtractor(
-    projectPath: String,
+    moduleId: ComponentIdentifier,
     private val projectStructureMetadataFile: File?,
-) : AbstractProjectMppDependencyProjectStructureMetadataExtractor(projectPath) {
+) : AbstractProjectMppDependencyProjectStructureMetadataExtractor(moduleId) {
 
     override fun getProjectStructureMetadata(): KotlinProjectStructureMetadata? {
         return projectStructureMetadataFile?.let {

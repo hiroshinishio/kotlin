@@ -43,7 +43,7 @@ private constructor(
                     ?: error("Project structure metadata not found for project '${moduleId.projectPath}'")
 
                 ProjectMppDependencyProjectStructureMetadataExtractorDeprecated(
-                    projectPath = moduleId.projectPath,
+                    moduleId = moduleId,
                     projectStructureMetadataProvider = projectStructureMetadataProvider::value
                 )
             } else {

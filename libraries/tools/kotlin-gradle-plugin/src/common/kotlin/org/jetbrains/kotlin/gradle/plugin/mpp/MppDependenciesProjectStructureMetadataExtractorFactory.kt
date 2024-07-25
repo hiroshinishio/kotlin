@@ -42,7 +42,7 @@ private constructor(
                         ?: error("Project structure metadata not found for project '${moduleId.projectPath}'")
 
                 ProjectMppDependencyProjectStructureMetadataExtractor(
-                    projectPath = moduleId.projectPath,
+                    moduleId = moduleId,
                     projectStructureMetadataFile = projectStructureMetadataFileForCurrentModuleId
                 )
             } else {

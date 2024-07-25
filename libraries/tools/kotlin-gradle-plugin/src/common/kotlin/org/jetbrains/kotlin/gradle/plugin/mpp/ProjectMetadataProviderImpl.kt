@@ -6,22 +6,46 @@
 package org.jetbrains.kotlin.gradle.plugin.mpp
 
 import org.gradle.api.Project
+import org.gradle.api.artifacts.Configuration
+import org.gradle.api.artifacts.component.ComponentIdentifier
+import org.gradle.api.artifacts.type.ArtifactTypeDefinition
+import org.gradle.api.attributes.Attribute
+import org.gradle.api.attributes.LibraryElements
+import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.FileCollection
-import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
-import org.jetbrains.kotlin.gradle.dsl.metadataTarget
-import org.jetbrains.kotlin.gradle.dsl.multiplatformExtensionOrNull
+import org.gradle.api.model.ObjectFactory
+import org.jetbrains.kotlin.gradle.dsl.*
 import org.jetbrains.kotlin.gradle.plugin.KotlinPluginLifecycle.Stage.AfterEvaluateBuildscript
+import org.jetbrains.kotlin.gradle.plugin.KotlinProjectSetupAction
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import org.jetbrains.kotlin.gradle.plugin.await
+import org.jetbrains.kotlin.gradle.plugin.launch
 import org.jetbrains.kotlin.gradle.plugin.mpp.MetadataDependencyResolution.ChooseVisibleSourceSets.MetadataProvider.ProjectMetadataProvider
+import org.jetbrains.kotlin.gradle.plugin.sources.disambiguateName
 import org.jetbrains.kotlin.gradle.targets.metadata.awaitMetadataCompilationsCreated
+import org.jetbrains.kotlin.gradle.utils.LenientFuture
+import org.jetbrains.kotlin.gradle.utils.named
+import org.jetbrains.kotlin.gradle.utils.setAttribute
+import org.jetbrains.kotlin.gradle.utils.whenEvaluated
 
 private typealias SourceSetName = String
 
+private val sourceSetTypeAttribute = Attribute.of("org.jetbrains.kotlin.internal.kmp.sourceSetType", String::class.javaObjectType)
+
 internal fun ProjectMetadataProvider(
-    sourceSetMetadataOutputs: Map<SourceSetName, SourceSetMetadataOutputs>,
+    sourceSetMetadataOutputs: LenientFuture<Map<String, SourceSetMetadataOutputs>>?,
+    moduleId: ComponentIdentifier,
+    resolvableMetadataConfiguration: Configuration,
+    kmpProjectIsolationEnabled: Boolean,
+    objectFactory: ObjectFactory,
 ): ProjectMetadataProvider {
-    return ProjectMetadataProviderImpl(sourceSetMetadataOutputs)
+    return ProjectMetadataProviderImpl(
+        sourceSetMetadataOutputs,
+        moduleId,
+        resolvableMetadataConfiguration,
+        kmpProjectIsolationEnabled,
+        objectFactory
+    )
 }
 
 internal class SourceSetMetadataOutputs(
@@ -29,14 +53,34 @@ internal class SourceSetMetadataOutputs(
 )
 
 private class ProjectMetadataProviderImpl(
-    private val sourceSetMetadataOutputs: Map<SourceSetName, SourceSetMetadataOutputs>,
+    private val sourceSetMetadataOutputs: LenientFuture<Map<String, SourceSetMetadataOutputs>>?,
+    private val moduleId: ComponentIdentifier,
+    private val resolvableMetadataConfiguration: Configuration,
+    private val kmpProjectIsolationEnabled: Boolean,
+    private val objectFactory: ObjectFactory,
 ) : ProjectMetadataProvider() {
 
     override fun getSourceSetCompiledMetadata(sourceSetName: String): FileCollection? {
-        val metadataOutputs = sourceSetMetadataOutputs[sourceSetName] ?: return null
-        return metadataOutputs.metadata
-    }
 
+        if (kmpProjectIsolationEnabled) {
+            val artifactPreview = resolvableMetadataConfiguration.incoming.artifactView { artifactView ->
+                artifactView.componentFilter { componentId -> componentId == moduleId }
+                artifactView.isLenient = true
+                artifactView.attributes.setAttribute(
+                    LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE,
+                    objectFactory.named(LibraryElements.CLASSES_AND_RESOURCES)
+                )
+                artifactView.attributes.setAttribute(sourceSetTypeAttribute, sourceSetName)
+            }
+            val artifacts = artifactPreview.artifacts
+            val artifactFiles = artifacts.artifactFiles
+            return artifactFiles
+        } else {
+            val sourceSetMetadataOutputs = sourceSetMetadataOutputs?.getOrThrow() ?: error("Unexpected project path '${moduleId}'")
+            val metadataOutputs = sourceSetMetadataOutputs[sourceSetName] ?: return null
+            return metadataOutputs.metadata
+        }
+    }
 }
 
 internal suspend fun Project.collectSourceSetMetadataOutputs(): Map<SourceSetName, SourceSetMetadataOutputs> {
@@ -58,11 +102,42 @@ internal suspend fun Project.collectSourceSetMetadataOutputs(): Map<SourceSetNam
     val sourceSetMetadata = multiplatformExtension.sourceSetsMetadataOutputs()
 
     return sourceSetMetadata.mapValues { (_, metadata) ->
-        SourceSetMetadataOutputs(metadata = metadata,)
+        SourceSetMetadataOutputs(metadata = metadata)
     }.mapKeys { it.key.name }
 }
 
-private suspend fun KotlinMultiplatformExtension.sourceSetsMetadataOutputs(): Map<KotlinSourceSet, FileCollection?> {
+internal val MetadataApiElementsSecondaryVariantsSetupAction = KotlinProjectSetupAction {
+    project.launch {
+        val multiplatformExtension = project.multiplatformExtension
+        val sourceSetsMetadataOutputsMap = multiplatformExtension.sourceSetsMetadataOutputs()
+        val metadataApiConfiguration =
+            project.configurations.getByName(multiplatformExtension.awaitMetadataTarget().apiElementsConfigurationName)
+        for (metadataOutputBySourceSet in sourceSetsMetadataOutputsMap) {
+            metadataApiConfiguration.addSecondaryOutgoingVariant(project, metadataOutputBySourceSet.key, metadataOutputBySourceSet.value)
+        }
+    }
+}
+
+private fun Configuration.addSecondaryOutgoingVariant(
+    project: Project,
+    kotlinSourceSet: KotlinSourceSet,
+    sourceSetClassesDir: ConfigurableFileCollection,
+) {
+    val apiClassesVariant = outgoing.variants.maybeCreate(kotlinSourceSet.disambiguateName("secondaryVariant"))
+    apiClassesVariant.attributes.setAttribute(
+        LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE,
+        project.objects.named(LibraryElements.CLASSES_AND_RESOURCES)
+    )
+    apiClassesVariant.attributes.setAttribute(sourceSetTypeAttribute, kotlinSourceSet.name)
+    project.whenEvaluated {
+        apiClassesVariant.artifact(project.provider { sourceSetClassesDir.singleFile }) {
+            it.type = ArtifactTypeDefinition.DIRECTORY_TYPE
+            it.builtBy(sourceSetClassesDir.buildDependencies)
+        }
+    }
+}
+
+private suspend fun KotlinMultiplatformExtension.sourceSetsMetadataOutputs(): Map<KotlinSourceSet, ConfigurableFileCollection> {
     return metadataTarget
         .awaitMetadataCompilationsCreated()
         // TODO: KT-62332/Stop-Creating-legacy-metadata-compilation-with-name-main
