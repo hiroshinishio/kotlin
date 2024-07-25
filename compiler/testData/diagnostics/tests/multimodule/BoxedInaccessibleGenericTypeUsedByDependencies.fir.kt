@@ -20,4 +20,3 @@ fun test2() {
     val a = <!MISSING_DEPENDENCY_CLASS_IN_EXPRESSION_TYPE!>produceBoxedInaccessibleType<!>()
     consumeBoxedInaccessibleType(<!ARGUMENT_TYPE_MISMATCH, MISSING_DEPENDENCY_CLASS!>a<!>)
 }
-
