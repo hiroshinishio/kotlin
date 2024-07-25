@@ -1,9 +1,11 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import org.jetbrains.kotlin.build.androidsdkprovisioner.ProvisioningType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("gradle-plugin-common-configuration")
     id("org.jetbrains.kotlinx.binary-compatibility-validator")
+    id("android-sdk-provisioner")
 }
 
 repositories {
@@ -297,8 +299,10 @@ if (!kotlinBuildProperties.isInJpsBuildIdeaSync) {
             languageVersion.set(JavaLanguageVersion.of(11))
         })
         dependsOnKotlinGradlePluginInstall()
-        useAndroidSdk()
-        acceptAndroidSdkLicenses()
+        androidSdkProvisioner {
+            provideToThisTaskAsSystemProperty(ProvisioningType.SDK)
+            acceptLicenses()
+        }
         maxParallelForks = 8
 
         testLogging {
