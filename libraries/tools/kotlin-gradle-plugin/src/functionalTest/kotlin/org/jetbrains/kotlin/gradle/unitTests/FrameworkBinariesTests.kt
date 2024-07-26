@@ -46,7 +46,7 @@ class FrameworkBinariesTests {
     }
 
     @Test
-    fun `consumable framework configurations - have correct outgoing framework artifact and attributes`() {
+    fun `consumable framework configurations - have correct outgoing framework artifact and attributes - when attributes are applied at target and framework level`() {
         val disambiguation1Attribute = Attribute.of("myDisambiguation1Attribute", String::class.java)
         val disambiguation2Attribute = Attribute.of("myDisambiguation2Attribute", String::class.java)
 
@@ -80,9 +80,11 @@ class FrameworkBinariesTests {
         )
 
         fun Configuration.validateOutgoing(
-            expectedAttributes: Set<String>,
             expectedBuildType: String,
+            expectedFrameworkAttributes: Set<String>,
             expectedFrameworkName: String,
+            expectedDisambiguation1Attribute: String?,
+            expectedDisambiguation2Attribute: String?,
         ) {
             val framework = outgoing.artifacts.single()
             assertEquals(
@@ -90,23 +92,55 @@ class FrameworkBinariesTests {
                 framework.file.name,
             )
             assertEquals(
-                expectedAttributes,
+                expectedFrameworkAttributes,
                 outgoing.attributes.getAttribute(frameworkTargets)
             )
             assertEquals(
                 expectedBuildType,
                 outgoing.attributes.getAttribute(kotlinNativeBuildTypeAttribute)
             )
+            assertEquals(
+                expectedDisambiguation1Attribute,
+                outgoing.attributes.getAttribute(disambiguation1Attribute),
+            )
+            assertEquals(
+                expectedDisambiguation2Attribute,
+                outgoing.attributes.getAttribute(disambiguation2Attribute),
+            )
         }
 
         // Check that outgoing framework configurations per target are valid
         run {
-            val targets = listOf("iosArm64" to "ios_arm64", "iosX64" to "ios_x64")
+            data class ThinFrameworkTestCase(
+                val target: String,
+                val targetAttribute: String,
+                val expectedDisambiguation1Attribute: String?,
+                val expectedDisambiguation2Attribute: String?,
+            )
+
+            val targets = listOf(
+                ThinFrameworkTestCase(
+                    "iosArm64", "ios_arm64",
+                    expectedDisambiguation1Attribute = "someValue",
+                    expectedDisambiguation2Attribute = null,
+                ),
+                ThinFrameworkTestCase(
+                    "iosX64", "ios_x64",
+                    expectedDisambiguation1Attribute = null,
+                    expectedDisambiguation2Attribute = null,
+                ),
+            )
             val buildTypes = listOf("release", "debug")
-            targets.forEach { (name, target) ->
+            targets.forEach { testCase ->
                 buildTypes.forEach { buildType ->
-                    val targetFrameworkConfiguration = frameworkProducer.configurations.getByName("main${buildType.capitalize()}Framework${name.capitalize()}")
-                    targetFrameworkConfiguration.validateOutgoing(setOf(target), buildType.toUpperCase(), "main.framework")
+                    val targetFrameworkConfiguration = frameworkProducer.configurations.getByName("main${buildType.capitalize()}Framework${testCase.target.capitalize()}")
+                    targetFrameworkConfiguration.validateOutgoing(
+                        expectedBuildType = buildType.toUpperCase(),
+                        expectedFrameworkAttributes = setOf(testCase.targetAttribute),
+                        expectedFrameworkName = "main.framework",
+                        expectedDisambiguation1Attribute = testCase.expectedDisambiguation1Attribute,
+                        expectedDisambiguation2Attribute = testCase.expectedDisambiguation2Attribute,
+                    )
                 }
             }
         }
@@ -116,22 +150,34 @@ class FrameworkBinariesTests {
             val buildTypes = listOf("release", "debug")
             buildTypes.forEach { buildType ->
                 val universalFrameworkConfiguration = frameworkProducer.configurations.getByName("main${buildType.capitalize()}FrameworkIosFat")
-                universalFrameworkConfiguration.validateOutgoing(setOf("ios_x64", "ios_arm64"), buildType.toUpperCase(), "main.framework")
+                universalFrameworkConfiguration.validateOutgoing(
+                    expectedBuildType = buildType.toUpperCase(),
+                    expectedFrameworkAttributes = setOf("ios_x64", "ios_arm64"),
+                    expectedFrameworkName = "main.framework",
+                    expectedDisambiguation1Attribute = null,
+                    expectedDisambiguation2Attribute = null,
+                )
             }
         }
 
         // Also check that outgoing custom framework configuration is valid
         run {
             val customFrameworkConfiguration = frameworkProducer.configurations.getByName("customReleaseFrameworkIosArm64")
-            val attr1Value = customFrameworkConfiguration.attributes.getAttribute(disambiguation1Attribute)
-            if (attr1Value != "someValue") {
-                throw IllegalStateException("${disambiguation1Attribute.name} has incorrect value. Expected: \"someValue\", actual: \"$attr1Value\"")
-            }
-            val attr2Value = customFrameworkConfiguration.attributes.getAttribute(disambiguation2Attribute)
-            if (attr2Value != "someValue2") {
-                throw IllegalStateException("${disambiguation2Attribute.name} has incorrect value. Expected: \"someValue2\", actual: \"$attr2Value\"")
-            }
-            customFrameworkConfiguration.validateOutgoing(setOf("ios_arm64"), "RELEASE", "custom.framework")
+            assertEquals(
+                "someValue",
+                customFrameworkConfiguration.outgoing.attributes.getAttribute(disambiguation1Attribute)
+            )
+            assertEquals(
+                "someValue2",
+                customFrameworkConfiguration.outgoing.attributes.getAttribute(disambiguation2Attribute)
+            )
+            customFrameworkConfiguration.validateOutgoing(
+                expectedBuildType = "RELEASE",
+                expectedFrameworkAttributes = setOf("ios_arm64"),
+                expectedFrameworkName = "custom.framework",
+                expectedDisambiguation1Attribute = "someValue",
+                expectedDisambiguation2Attribute = "someValue2",
+            )
         }
     }
 
