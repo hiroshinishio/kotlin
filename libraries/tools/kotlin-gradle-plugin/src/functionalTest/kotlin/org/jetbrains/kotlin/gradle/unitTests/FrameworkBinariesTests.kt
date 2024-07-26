@@ -99,6 +99,7 @@ class FrameworkBinariesTests {
             )
         }
 
+        // Check that outgoing framework configurations per target are valid
         run {
             val targets = listOf("iosArm64" to "ios_arm64", "iosX64" to "ios_x64")
             val buildTypes = listOf("release", "debug")
@@ -110,6 +111,7 @@ class FrameworkBinariesTests {
             }
         }
 
+        // Check that outgoing universal framework configurations are valid
         run {
             val buildTypes = listOf("release", "debug")
             buildTypes.forEach { buildType ->
@@ -118,6 +120,7 @@ class FrameworkBinariesTests {
             }
         }
 
+        // Also check that outgoing custom framework configuration is valid
         run {
             val customFrameworkConfiguration = frameworkProducer.configurations.getByName("customReleaseFrameworkIosArm64")
             val attr1Value = customFrameworkConfiguration.attributes.getAttribute(disambiguation1Attribute)
