@@ -392,7 +392,7 @@ public:
 
     private:
         ObjectFactoryStorage& owner_; // weak
-        std::unique_lock<SpinLock<MutexThreadStateHandling::kIgnore>> guard_;
+        std::unique_lock<SpinLock> guard_;
     };
 
     ~ObjectFactoryStorage() {
@@ -445,7 +445,7 @@ private:
     Node* last_ = nullptr;
     size_t size_ = 0;
     size_t totalObjectsSizeBytes_ = 0;
-    SpinLock<MutexThreadStateHandling::kIgnore> mutex_;
+    SpinLock mutex_;
 };
 
 } // namespace internal
