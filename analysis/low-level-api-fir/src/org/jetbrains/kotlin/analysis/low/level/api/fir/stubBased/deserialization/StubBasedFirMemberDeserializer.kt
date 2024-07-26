@@ -357,9 +357,9 @@ internal class StubBasedFirMemberDeserializer(
             backingField = FirDefaultPropertyBackingField(
                 c.moduleData,
                 initialOrigin,
-                source = property.toKtPsiSourceElement(KtFakeSourceElementKind.DefaultAccessor),
+                source = property.toKtPsiSourceElement(KtFakeSourceElementKind.DefaultAccessor.BackingField),
                 backingFieldAnnotations.toMutableList(),
-                returnTypeRef.copyWithNewSourceKind(KtFakeSourceElementKind.DefaultAccessor),
+                returnTypeRef.copyWithNewSourceKind(KtFakeSourceElementKind.DefaultAccessor.BackingField),
                 isVar,
                 symbol,
                 status,
@@ -373,10 +373,10 @@ internal class StubBasedFirMemberDeserializer(
                     symbol
                 )
             } ?: FirDefaultPropertyGetter(
-                source = source?.fakeElement(KtFakeSourceElementKind.DefaultAccessor),
+                source = source?.fakeElement(KtFakeSourceElementKind.DefaultAccessor.Getter),
                 moduleData = moduleData,
                 origin = origin,
-                propertyTypeRef = returnTypeRef.copyWithNewSourceKind(KtFakeSourceElementKind.DefaultAccessor),
+                propertyTypeRef = returnTypeRef.copyWithNewSourceKind(KtFakeSourceElementKind.DefaultAccessor.Getter),
                 propertySymbol = symbol,
                 visibility = resolvedStatus.visibility,
                 effectiveVisibility = resolvedStatus.effectiveVisibility,
@@ -388,10 +388,10 @@ internal class StubBasedFirMemberDeserializer(
             this.setter = when {
                 setter != null -> loadPropertySetter(setter, classSymbol, symbol, local)
                 isVar -> FirDefaultPropertySetter(
-                    source = source?.fakeElement(KtFakeSourceElementKind.DefaultAccessor),
+                    source = source?.fakeElement(KtFakeSourceElementKind.DefaultAccessor.Setter),
                     moduleData = moduleData,
                     origin = origin,
-                    propertyTypeRef = returnTypeRef.copyWithNewSourceKind(KtFakeSourceElementKind.DefaultAccessor),
+                    propertyTypeRef = returnTypeRef.copyWithNewSourceKind(KtFakeSourceElementKind.DefaultAccessor.Setter),
                     propertySymbol = symbol,
                     visibility = resolvedStatus.visibility,
                     effectiveVisibility = resolvedStatus.effectiveVisibility,

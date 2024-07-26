@@ -148,15 +148,18 @@ class ValueParameter(
                 isLateInit = modifiers.hasLateinit()
             }
 
-            val defaultAccessorSource = propertySource?.fakeElement(KtFakeSourceElementKind.DefaultAccessor)
+            fun defaultSource(kind: KtFakeSourceElementKind.DefaultAccessor): KtSourceElement? {
+                return propertySource?.fakeElement(kind)
+            }
+
             backingField = FirDefaultPropertyBackingField(
                 moduleData = moduleData,
                 origin = FirDeclarationOrigin.Source,
-                source = defaultAccessorSource,
+                source = defaultSource(KtFakeSourceElementKind.DefaultAccessor.BackingField),
                 annotations = remappedAnnotations.filter {
                     it.useSiteTarget == FIELD || it.useSiteTarget == PROPERTY_DELEGATE_FIELD
                 }.toMutableList(),
-                returnTypeRef = returnTypeRef.copyWithNewSourceKind(KtFakeSourceElementKind.DefaultAccessor),
+                returnTypeRef = returnTypeRef.copyWithNewSourceKind(KtFakeSourceElementKind.DefaultAccessor.BackingField),
                 isVar = isVar,
                 propertySymbol = symbol,
                 status = status.copy(isLateInit = false),
@@ -165,10 +168,10 @@ class ValueParameter(
             annotations += remappedAnnotations.filterConstructorPropertyRelevantAnnotations(this.isVar)
 
             getter = FirDefaultPropertyGetter(
-                defaultAccessorSource,
+                defaultSource(KtFakeSourceElementKind.DefaultAccessor.Getter),
                 moduleData,
                 FirDeclarationOrigin.Source,
-                type.copyWithNewSourceKind(KtFakeSourceElementKind.DefaultAccessor),
+                type.copyWithNewSourceKind(KtFakeSourceElementKind.DefaultAccessor.Getter),
                 modifiers.getVisibility(),
                 symbol,
                 isInline = modifiers.hasInline(),
@@ -177,10 +180,10 @@ class ValueParameter(
                 it.replaceAnnotations(remappedAnnotations.filterUseSiteTarget(PROPERTY_GETTER))
             }
             setter = if (this.isVar) FirDefaultPropertySetter(
-                defaultAccessorSource,
+                defaultSource(KtFakeSourceElementKind.DefaultAccessor.Setter),
                 moduleData,
                 FirDeclarationOrigin.Source,
-                type.copyWithNewSourceKind(KtFakeSourceElementKind.DefaultAccessor),
+                type.copyWithNewSourceKind(KtFakeSourceElementKind.DefaultAccessor.Setter),
                 modifiers.getVisibility(),
                 symbol,
                 parameterAnnotations = remappedAnnotations.filterUseSiteTarget(SETTER_PARAMETER),

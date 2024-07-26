@@ -154,7 +154,7 @@ class FirScriptConfiguratorExtensionImpl(
                         initializer = lastExpression
                         returnTypeRef = lastExpressionTypeRef
                         getter = FirDefaultPropertyGetter(
-                            lastScriptBlock?.source?.fakeElement(KtFakeSourceElementKind.DefaultAccessor),
+                            lastScriptBlock?.source?.fakeElement(KtFakeSourceElementKind.DefaultAccessor.Getter),
                             session.moduleData,
                             FirDeclarationOrigin.ScriptCustomization.ResultProperty,
                             lastExpressionTypeRef,

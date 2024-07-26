@@ -158,7 +158,7 @@ class FirDefaultPropertySetter(
     valueParameters = mutableListOf(
         buildDefaultSetterValueParameter builder@{
             this@builder.resolvePhase = resolvePhase
-            this@builder.source = (parameterSource ?: source)?.fakeElement(KtFakeSourceElementKind.DefaultAccessor)
+            this@builder.source = (parameterSource ?: source)?.fakeElement(KtFakeSourceElementKind.DefaultAccessor.Setter)
             this@builder.containingFunctionSymbol = propertyAccessorSymbol
             this@builder.moduleData = moduleData
             this@builder.origin = origin

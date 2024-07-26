@@ -82,7 +82,11 @@ sealed class KtFakeSourceElementKind(final override val shouldSkipErrorTypeRepor
      * for properties without accessors default getter & setter are generated
      * they have a fake source which refers to property
      */
-    object DefaultAccessor : KtFakeSourceElementKind(shouldSkipErrorTypeReporting = true)
+    sealed class DefaultAccessor : KtFakeSourceElementKind(shouldSkipErrorTypeReporting = true) {
+        object Getter : DefaultAccessor()
+        object Setter : DefaultAccessor()
+        object BackingField : DefaultAccessor()
+    }
 
     /**
      * for delegated properties, getter & setter calls to the delegate
