@@ -25,6 +25,7 @@ import com.sun.tools.javac.tree.JCTree.*
 import com.sun.tools.javac.tree.TreeMaker
 import com.sun.tools.javac.tree.TreeScanner
 import kotlinx.kapt.KaptIgnored
+import org.jetbrains.kotlin.KtPsiSourceElement
 import org.jetbrains.kotlin.builtins.StandardNames
 import org.jetbrains.kotlin.codegen.AsmUtil
 import org.jetbrains.kotlin.codegen.coroutines.CONTINUATION_PARAMETER_NAME
@@ -36,6 +37,7 @@ import org.jetbrains.kotlin.fir.analysis.checkers.classKind
 import org.jetbrains.kotlin.fir.analysis.getChild
 import org.jetbrains.kotlin.fir.backend.FirAnnotationSourceElement
 import org.jetbrains.kotlin.fir.backend.FirMetadataSource
+import org.jetbrains.kotlin.fir.declarations.FirClass
 import org.jetbrains.kotlin.fir.declarations.FirFile
 import org.jetbrains.kotlin.fir.declarations.FirResolvedImport
 import org.jetbrains.kotlin.fir.expressions.*
@@ -62,7 +64,6 @@ import org.jetbrains.kotlin.kapt3.javac.KaptJavaFileObject
 import org.jetbrains.kotlin.kapt3.javac.KaptTreeMaker
 import org.jetbrains.kotlin.kapt3.stubs.ErrorTypeCorrector.TypeKind.*
 import org.jetbrains.kotlin.kapt3.util.*
-import org.jetbrains.kotlin.kapt3.util.isEnum
 import org.jetbrains.kotlin.load.java.JvmAbi
 import org.jetbrains.kotlin.load.java.sources.JavaSourceElement
 import org.jetbrains.kotlin.load.kotlin.TypeMappingMode
@@ -554,7 +555,7 @@ class ClassFileToSourceStubConverter(val kaptContext: KaptContextForStubGenerati
 
         lineMappings.registerClass(clazz)
 
-        val superTypes = calculateSuperTypes(clazz, genericType)
+        val superTypes = calculateSuperTypes(clazz, genericType, descriptor)
 
         val classPosition = lineMappings.getPosition(clazz)
         val sortedFields = JavacList.from(fields.sortedWith(MembersPositionComparator(classPosition, fieldsPositions)))
@@ -572,7 +573,9 @@ class ClassFileToSourceStubConverter(val kaptContext: KaptContextForStubGenerati
 
     private class ClassSupertypes(val superClass: JCExpression?, val interfaces: JavacList<JCExpression>)
 
-    private fun calculateSuperTypes(clazz: ClassNode, genericType: SignatureParser.ClassGenericSignature): ClassSupertypes {
+    private fun calculateSuperTypes(
+        clazz: ClassNode, genericType: SignatureParser.ClassGenericSignature, descriptor: DeclarationDescriptor,
+    ): ClassSupertypes {
         val hasSuperClass = clazz.superName != "java/lang/Object" && !clazz.isEnum()
 
         val defaultSuperTypes = ClassSupertypes(
@@ -587,7 +590,8 @@ class ClassFileToSourceStubConverter(val kaptContext: KaptContextForStubGenerati
         val declaration = kaptContext.origins[clazz]?.element as? KtClassOrObject ?: return defaultSuperTypes
         if (declaration.computeJvmInternalName() != clazz.name) return defaultSuperTypes
 
-        val (superClass, superInterfaces) = partitionSuperTypes(declaration) ?: return defaultSuperTypes
+        val firClass = ((descriptor as? IrBasedClassDescriptor)?.owner?.metadata as? FirMetadataSource.Class)?.fir
+        val (superClass, superInterfaces) = partitionSuperTypes(declaration, firClass) ?: return defaultSuperTypes
 
         val sameSuperClassCount = (superClass == null) == (defaultSuperTypes.superClass == null)
         val sameSuperInterfaceCount = superInterfaces.size == defaultSuperTypes.interfaces.size
@@ -625,7 +629,7 @@ class ClassFileToSourceStubConverter(val kaptContext: KaptContextForStubGenerati
         }
     }
 
-    private fun partitionSuperTypes(declaration: KtClassOrObject): Pair<KtTypeReference?, List<KtTypeReference>>? {
+    private fun partitionSuperTypes(declaration: KtClassOrObject, firClass: FirClass?): Pair<KtTypeReference?, List<KtTypeReference>>? {
         val superTypeEntries = declaration.superTypeListEntries
             .takeIf { it.isNotEmpty() }
             ?: return Pair(null, emptyList())
@@ -635,21 +639,13 @@ class ClassFileToSourceStubConverter(val kaptContext: KaptContextForStubGenerati
         val otherEntries = mutableListOf<KtSuperTypeListEntry>()
 
         for (entry in superTypeEntries) {
-            val type = kaptContext.bindingContext[BindingContext.TYPE, entry.typeReference]
-            val classDescriptor = type?.constructor?.declarationDescriptor as? ClassDescriptor
-
-            if (type != null && !type.isError && classDescriptor != null) {
-                val container = if (classDescriptor.kind == ClassKind.INTERFACE) interfaceEntries else classEntries
-                container += entry
-                continue
+            val isInterface = isSuperTypeDefinitelyInterface(entry, firClass)
+            val container = when {
+                isInterface != null -> if (isInterface) interfaceEntries else classEntries
+                entry is KtSuperTypeCallEntry -> classEntries
+                else -> otherEntries
             }
-
-            if (entry is KtSuperTypeCallEntry) {
-                classEntries += entry
-                continue
-            }
-
-            otherEntries += entry
+            container += entry
         }
 
         for (entry in otherEntries) {
@@ -669,6 +665,27 @@ class ClassFileToSourceStubConverter(val kaptContext: KaptContextForStubGenerati
         }
 
         return Pair(classEntries.firstOrNull()?.typeReference, interfaceEntries.mapNotNull { it.typeReference })
+    }
+
+    private fun isSuperTypeDefinitelyInterface(entry: KtSuperTypeListEntry, firClass: FirClass?): Boolean? {
+        val type = kaptContext.bindingContext[BindingContext.TYPE, entry.typeReference]
+        if (type != null && !type.isError) {
+            val classDescriptor = type.constructor.declarationDescriptor as? ClassDescriptor
+            if (classDescriptor != null) {
+                return classDescriptor.kind == ClassKind.INTERFACE
+            }
+        }
+        if (firClass != null) {
+            val firSuperTypeRef = firClass.superTypeRefs.firstOrNull { (it.source as? KtPsiSourceElement)?.psi == entry.typeReference }
+            val symbolProvider = kaptContext.firSession?.symbolProvider
+            if (firSuperTypeRef != null && symbolProvider != null) {
+                val superFirClass = firSuperTypeRef.coneTypeOrNull?.classId?.let(symbolProvider::getClassLikeSymbolByClassId)
+                if (superFirClass != null) {
+                    return superFirClass.classKind == ClassKind.INTERFACE
+                }
+            }
+        }
+        return null
     }
 
     private fun KtClass.hasOnlySecondaryConstructors(): Boolean {
