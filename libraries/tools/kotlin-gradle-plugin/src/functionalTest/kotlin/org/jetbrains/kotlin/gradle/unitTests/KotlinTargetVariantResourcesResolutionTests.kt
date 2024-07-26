@@ -433,7 +433,7 @@ class KotlinTargetVariantResourcesResolutionTests {
                         // linuxX64ResourcesPath is the root resolvable configuration for the resolution
                         "test:consumer" to listOf(listOf("linuxX64ResourcesPath")),
                         // stdlib doesn't have resources, so apiElements is selected as per compatibility rule
-                        "org.jetbrains.kotlin:kotlin-stdlib" to listOf(listOf("nativeApiElements")),
+                        "org.jetbrains.kotlin:kotlin-stdlib" to listOf(listOf("nativeApiElements-published")),
                         // producer provides the consumable configuration with resources for the consumer
                         "test:producer" to listOf(listOf("linuxX64ResourcesElements")),
                     ),
