@@ -17,10 +17,12 @@ import org.jetbrains.kotlin.ir.declarations.IrSimpleFunction
 import org.jetbrains.kotlin.ir.descriptors.toIrBasedDescriptor
 import org.jetbrains.kotlin.ir.linkage.SignatureClashDetector
 import org.jetbrains.kotlin.ir.util.isFakeOverride
+import org.jetbrains.kotlin.ir.util.isSetter
 import org.jetbrains.kotlin.resolve.jvm.diagnostics.ConflictingJvmDeclarationsData
 import org.jetbrains.kotlin.resolve.jvm.diagnostics.JvmBackendErrors
 import org.jetbrains.kotlin.resolve.jvm.diagnostics.MemberKind
 import org.jetbrains.kotlin.resolve.jvm.diagnostics.RawSignature
+import org.jetbrains.kotlin.utils.addToStdlib.runIf
 
 class JvmMethodSignatureClashDetector(
     private val classCodegen: ClassCodegen
@@ -138,7 +140,17 @@ class JvmMethodSignatureClashDetector(
             irDeclarations,
             conflictingJvmDeclarationsData,
             // Offset can be negative (SYNTHETIC_OFFSET) for delegated members; report an error on the class in that case.
-            reportOnIfSynthetic = { classCodegen.irClass },
+            reportOnIfSynthetic = {
+                // default setter has synthetic offset, but it makes sense to report the diagnostic on the corresponding
+                // property instead of the whole class
+                val propertyForSetter = (it as? IrSimpleFunction)?.let {
+                    val prop = it.correspondingPropertySymbol?.owner ?: return@let null
+                    if (prop.setter != it) return@let null
+                    if (prop.startOffset < 0) return@let null
+                    prop
+                }
+                propertyForSetter ?: classCodegen.irClass
+            },
         )
     }
 

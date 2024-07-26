@@ -33,15 +33,22 @@ fun box() {
 // test.kt:22 box: foo:Foo=Foo
 // test.kt:13 start:
 // test.kt:7 start: this_\1:Foo=Foo, $i$f$inlineCall\1\13:int=0:int
+// EXPECTATIONS JVM_IR ClassicFrontend +USE_INLINE_SCOPES_NUMBERS
 // test.kt:14 start: this_\1:Foo=Foo, $i$f$inlineCall\1\13:int=0:int, it\2:kotlin.jvm.functions.Function0=Foo$inlineCall$1, $i$a$-inlineCall-Foo$start$1\2\84\0:int=0:int
 // test.kt:15 start: this_\1:Foo=Foo, $i$f$inlineCall\1\13:int=0:int, it\2:kotlin.jvm.functions.Function0=Foo$inlineCall$1, $i$a$-inlineCall-Foo$start$1\2\84\0:int=0:int
+// EXPECTATIONS JVM_IR FIR +USE_INLINE_SCOPES_NUMBERS
+// test.kt:14 start: this_\1:Foo=Foo, $i$f$inlineCall\1\13:int=0:int, it\2:kotlin.jvm.functions.Function0=Foo$inlineCall$1, $i$a$-inlineCall-Foo$start$1\2\93\0:int=0:int
+// test.kt:15 start: this_\1:Foo=Foo, $i$f$inlineCall\1\13:int=0:int, it\2:kotlin.jvm.functions.Function0=Foo$inlineCall$1, $i$a$-inlineCall-Foo$start$1\2\93\0:int=0:int
+// EXPECTATIONS JVM_IR +USE_INLINE_SCOPES_NUMBERS
 // test.kt:8 invoke:
 // test.kt:4 getBar:
 // test.kt:8 invoke:
+// EXPECTATIONS JVM_IR ClassicFrontend +USE_INLINE_SCOPES_NUMBERS
 // test.kt:4 setBar: <set-?>:java.lang.String="OK":java.lang.String
+// EXPECTATIONS JVM_IR +USE_INLINE_SCOPES_NUMBERS
 // test.kt:9 invoke:
-// test.kt:15 start: this_\1:Foo=Foo, $i$f$inlineCall\1\13:int=0:int, it\2:kotlin.jvm.functions.Function0=Foo$inlineCall$1, $i$a$-inlineCall-Foo$start$1\2\84\0:int=0:int
-// test.kt:16 start: this_\1:Foo=Foo, $i$f$inlineCall\1\13:int=0:int, it\2:kotlin.jvm.functions.Function0=Foo$inlineCall$1, $i$a$-inlineCall-Foo$start$1\2\84\0:int=0:int
+// test.kt:15 start: this_\1:Foo=Foo, $i$f$inlineCall\1\13:int=0:int, it\2:kotlin.jvm.functions.Function0=Foo$inlineCall$1, $i$a$-inlineCall-Foo$start$1\2\93\0:int=0:int
+// test.kt:16 start: this_\1:Foo=Foo, $i$f$inlineCall\1\13:int=0:int, it\2:kotlin.jvm.functions.Function0=Foo$inlineCall$1, $i$a$-inlineCall-Foo$start$1\2\93\0:int=0:int
 // test.kt:7 start: this_\1:Foo=Foo, $i$f$inlineCall\1\13:int=0:int
 // test.kt:10 start: this_\1:Foo=Foo, $i$f$inlineCall\1\13:int=0:int
 // test.kt:17 start:
@@ -62,7 +69,9 @@ fun box() {
 // test.kt:8 invoke:
 // test.kt:4 getBar:
 // test.kt:8 invoke:
+// EXPECTATIONS JVM_IR ClassicFrontend
 // test.kt:4 setBar: <set-?>:java.lang.String="OK":java.lang.String
+// EXPECTATIONS JVM_IR
 // test.kt:9 invoke:
 // test.kt:15 start: this_$iv:Foo=Foo, $i$f$inlineCall:int=0:int, it:kotlin.jvm.functions.Function0=Foo$inlineCall$1, $i$a$-inlineCall-Foo$start$1:int=0:int
 // test.kt:16 start: this_$iv:Foo=Foo, $i$f$inlineCall:int=0:int, it:kotlin.jvm.functions.Function0=Foo$inlineCall$1, $i$a$-inlineCall-Foo$start$1:int=0:int

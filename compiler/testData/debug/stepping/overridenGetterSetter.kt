@@ -50,7 +50,9 @@ fun box() {
 // test.kt:21 getPropVar2
 // test.kt:10 testPropertyInInterface
 // test.kt:11 testPropertyInInterface
+// EXPECTATIONS JVM_IR ClassicFrontend
 // test.kt:21 setPropVar2
+// EXPECTATIONS JVM_IR
 // test.kt:12 testPropertyInInterface
 // test.kt:16 testPropertyInInterface
 // test.kt:33 box
@@ -61,7 +63,9 @@ fun box() {
 // test.kt:21 getPropVar2
 // test.kt:25 testPropertyInInterfaceImpl
 // test.kt:26 testPropertyInInterfaceImpl
+// EXPECTATIONS JVM_IR ClassicFrontend
 // test.kt:21 setPropVar2
+// EXPECTATIONS JVM_IR
 // test.kt:27 testPropertyInInterfaceImpl
 // test.kt:34 box
 
@@ -76,8 +80,10 @@ fun box() {
 // test.kt:10 testPropertyInInterface
 // test.kt:21 <get-propVar2>
 // test.kt:11 testPropertyInInterface
+// EXPECTATIONS JS_IR ClassicFrontend
 // test.kt:21 <set-propVar2>
 // test.kt:21 <set-propVar2>
+// EXPECTATIONS JS_IR
 // test.kt:12 testPropertyInInterface
 // test.kt:33 box
 // test.kt:26 testPropertyInInterfaceImpl
