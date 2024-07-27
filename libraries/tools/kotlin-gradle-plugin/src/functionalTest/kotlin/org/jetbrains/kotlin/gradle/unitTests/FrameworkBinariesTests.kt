@@ -9,6 +9,7 @@ import org.gradle.api.artifacts.Configuration
 import org.gradle.api.attributes.Attribute
 import org.jetbrains.kotlin.gradle.util.buildProjectWithMPP
 import org.jetbrains.kotlin.gradle.util.kotlin
+import org.jetbrains.kotlin.gradle.utils.setAttribute
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -53,11 +54,11 @@ class FrameworkBinariesTests {
         val frameworkProducer = buildProjectWithMPP {
             kotlin {
                 iosArm64 {
-                    attributes.attribute(disambiguation1Attribute, "someValue")
+                    attributes.setAttribute(disambiguation1Attribute, "someValue")
                     binaries {
                         framework("main")
                         framework("custom") {
-                            attributes.attribute(disambiguation2Attribute, "someValue2")
+                            attributes.setAttribute(disambiguation2Attribute, "someValue2")
                         }
                     }
                 }
