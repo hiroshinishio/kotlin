@@ -7,8 +7,7 @@ package org.jetbrains.kotlin.gradle.targets.native.internal
 
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
-import org.gradle.api.file.ConfigurableFileCollection
-import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.file.*
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
@@ -46,6 +45,7 @@ import javax.inject.Inject
 internal abstract class NativeDistributionCommonizerTask
 @Inject constructor(
     private val objectFactory: ObjectFactory,
+    private val layout: ProjectLayout,
     providerFactory: ProviderFactory,
 ) : DefaultTask(),
     UsesBuildMetricsService,
@@ -81,7 +81,7 @@ internal abstract class NativeDistributionCommonizerTask
 
     private val kotlinPluginVersion = project.getKotlinPluginVersion()
 
-    @get:OutputDirectory
+    @get:Internal
     internal val rootOutputDirectoryProperty: DirectoryProperty = objectFactory
         .directoryProperty().fileProvider(
             konanHome.map {
@@ -90,6 +90,11 @@ internal abstract class NativeDistributionCommonizerTask
                     .resolve(URLEncoder.encode(kotlinPluginVersion, Charsets.UTF_8.name()))
             }
         )
+
+    @get:OutputFile
+    internal val commonizerFile: RegularFileProperty = objectFactory
+        .fileProperty()
+        .value(layout.buildDirectory.file("kotlin/commonizedLocation.txt"))
 
     private val isCachingEnabled = project.kotlinPropertiesProvider.enableNativeDistributionCommonizationCache
 
@@ -132,6 +137,8 @@ internal abstract class NativeDistributionCommonizerTask
 
     @TaskAction
     protected fun run() {
+        commonizerFile.get().asFile.writeText(rootOutputDirectoryProperty.get().asFile.absolutePath)
+
         val metricsReporter = metrics.get()
 
         addBuildMetricsForTaskAction(metricsReporter = metricsReporter, languageVersion = null) {
