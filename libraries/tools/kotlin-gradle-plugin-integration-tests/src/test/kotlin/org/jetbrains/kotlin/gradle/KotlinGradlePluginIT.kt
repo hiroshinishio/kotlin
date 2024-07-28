@@ -648,10 +648,11 @@ class KotlinGradleIT : KGPBaseTest() {
             subProject("projB").buildGradle.appendText("\nkotlin.target.attributes.attribute(targetAttribute, \"bar\")")
             buildAndFail(":projB:compileKotlin") {
                 when {
-                    gradleVersion <= GradleVersion.version(TestVersions.Gradle.G_6_8) -> {
+                    gradleVersion <= GradleVersion.version(TestVersions.Gradle.G_7_6) -> {
                         assertOutputContains(
                             "No matching variant of project :projA was found. The consumer was configured to find an API of a library " +
                                     "compatible with Java 8, preferably in the form of class files, " +
+                                    "preferably optimized for standard JVMs, " +
                                     "and its dependencies declared externally, " +
                                     "as well as attribute 'org.jetbrains.kotlin.platform.type' with value 'jvm', " +
                                     "attribute 'com.example.compilation' with value 'foo', " +
@@ -686,10 +687,12 @@ class KotlinGradleIT : KGPBaseTest() {
             )
             buildAndFail(":projB:compileKotlin") {
                 when {
-                    gradleVersion <= GradleVersion.version(TestVersions.Gradle.G_6_8) -> {
+                    gradleVersion <= GradleVersion.version(TestVersions.Gradle.G_7_6) -> {
                         assertOutputContains(
                             "No matching variant of project :projA was found. The consumer was configured to find an API of a library " +
-                                    "compatible with Java 8, preferably in the form of class files, and its dependencies declared externally, " +
+                                    "compatible with Java 8, preferably in the form of class files, " +
+                                    "preferably optimized for standard JVMs, " +
+                                    "and its dependencies declared externally, " +
                                     "as well as attribute 'org.jetbrains.kotlin.platform.type' with value 'jvm', " +
                                     "attribute 'com.example.compilation' with value 'bar', " +
                                     "attribute 'com.example.target' with value 'foo' but:"
