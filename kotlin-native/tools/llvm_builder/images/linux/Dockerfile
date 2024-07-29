@@ -29,4 +29,4 @@ WORKDIR /home/$USERNAME
 
 COPY package.py .
 
-ENTRYPOINT ["python3.6", "package.py"]
+ENTRYPOINT ["python3", "package.py"]
