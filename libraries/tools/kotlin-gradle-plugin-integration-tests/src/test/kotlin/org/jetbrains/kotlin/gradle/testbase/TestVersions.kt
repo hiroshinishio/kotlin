@@ -7,7 +7,6 @@ package org.jetbrains.kotlin.gradle.testbase
 
 import org.gradle.api.JavaVersion
 import org.gradle.util.GradleVersion
-import org.jetbrains.kotlin.gradle.utils.minSupportedGradleVersion
 
 // Must be in sync with gradleVersions in libraries/tools/kotlin-gradle-plugin-integration-tests/build.gradle.kts KTI-1612
 interface TestVersions {
@@ -27,7 +26,8 @@ interface TestVersions {
         const val G_8_8 = "8.8"
         const val G_8_9 = "8.9"
 
-        const val MIN_SUPPORTED = minSupportedGradleVersion
+        // Should be the same as GradleCompatibilityCheck.minSupportedGradleVersion
+        const val MIN_SUPPORTED = G_7_6
         const val MAX_SUPPORTED = G_8_9
     }
 
