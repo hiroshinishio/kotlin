@@ -82,9 +82,9 @@ class Fir2IrLazySimpleFunction(
                 this@buildList
             )
 
-            fir.valueParameters.mapIndexedTo(this) { index, valueParameter ->
+            fir.valueParameters.mapTo(this) { valueParameter ->
                 callablesGenerator.createIrParameter(
-                    valueParameter, index + contextReceiverParametersCount, skipDefaultParameter = isFakeOverride
+                    valueParameter, skipDefaultParameter = isFakeOverride
                 ).apply {
                     this.parent = this@Fir2IrLazySimpleFunction
                 }

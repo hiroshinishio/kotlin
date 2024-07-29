@@ -113,10 +113,10 @@ class Fir2IrLazyConstructor(
                 this@buildList
             )
 
-            fir.valueParameters.mapIndexedTo(this) { index, valueParameter ->
+            fir.valueParameters.mapTo(this) { valueParameter ->
                 val parentClass = parent as? IrClass
                 callablesGenerator.createIrParameter(
-                    valueParameter, index + contextReceiverParametersCount,
+                    valueParameter,
                     useStubForDefaultValueStub = parentClass?.classId != StandardClassIds.Enum,
                     forcedDefaultValueConversion = parentClass?.isAnnotationClass == true
                 ).apply {

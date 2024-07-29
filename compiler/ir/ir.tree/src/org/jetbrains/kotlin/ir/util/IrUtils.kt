@@ -894,7 +894,7 @@ val IrTypeParametersContainer.classIfConstructor get() = if (this is IrConstruct
 fun IrValueParameter.copyTo(
     irFunction: IrFunction,
     origin: IrDeclarationOrigin = this.origin,
-    index: Int = this.index,
+    index: Int = this.index, // to be removed
     startOffset: Int = this.startOffset,
     endOffset: Int = this.endOffset,
     name: Name = this.name,
@@ -959,7 +959,6 @@ fun IrFunction.copyReceiverParametersFrom(from: IrFunction, substitutionMap: Map
             type = type.substitute(substitutionMap),
             isAssignable = isAssignable,
             symbol = IrValueParameterSymbolImpl(),
-            index = index,
             varargElementType = varargElementType?.substitute(substitutionMap),
             isCrossinline = isCrossinline,
             isNoinline = isNoinline,
@@ -1243,7 +1242,6 @@ fun IrFunction.createDispatchReceiverParameter(origin: IrDeclarationOrigin? = nu
         type = parentAsClass.defaultType,
         isAssignable = false,
         symbol = IrValueParameterSymbolImpl(),
-        index = UNDEFINED_PARAMETER_INDEX,
         varargElementType = null,
         isCrossinline = false,
         isNoinline = false,
