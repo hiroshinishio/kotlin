@@ -36,7 +36,7 @@ open class KaptIncrementalIT : KGPBaseTest() {
         gradleVersion: GradleVersion,
         buildOptions: BuildOptions = defaultBuildOptions,
         buildJdk: File? = null,
-        test: TestProject.() -> Unit,
+        test: TestProject.() -> Unit
     ): TestProject = project(
         PROJECT_NAME,
         gradleVersion,
@@ -448,7 +448,7 @@ open class KaptIncrementalIT : KGPBaseTest() {
 
     private fun TestProject.assertCompiledKotlinSourcesHandleKapt3(
         buildResult: BuildResult,
-        sources: List<Path>,
+        sources: List<Path>
     ) {
         assertCompiledKotlinSources(
             sources,
@@ -469,7 +469,7 @@ open class KaptIncrementalIT : KGPBaseTest() {
 
     private fun TestProject.checkGenerated(
         generateToPath: Path,
-        vararg annotatedElementNames: String,
+        vararg annotatedElementNames: String
     ) {
         getGeneratedFileNames(*annotatedElementNames).forEach {
             assertFileExistsInTree(generateToPath, it)
@@ -478,7 +478,7 @@ open class KaptIncrementalIT : KGPBaseTest() {
 
     private fun TestProject.checkNotGenerated(
         generateToPath: Path,
-        vararg annotatedElementNames: String,
+        vararg annotatedElementNames: String
     ) {
         getGeneratedFileNames(*annotatedElementNames).forEach {
             assertFileNotExistsInTree(generateToPath, it)
