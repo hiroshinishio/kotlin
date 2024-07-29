@@ -15,6 +15,7 @@ import org.jetbrains.kotlin.fir.declarations.FirRegularClass
 import org.jetbrains.kotlin.fir.declarations.synthetic.FirSyntheticPropertyAccessor
 import org.jetbrains.kotlin.fir.declarations.utils.isInline
 import org.jetbrains.kotlin.ir.declarations.*
+import org.jetbrains.kotlin.ir.declarations.lazy.IrLazyFunctionBase.LazyValueParameterList
 import org.jetbrains.kotlin.ir.declarations.lazy.lazyVar
 import org.jetbrains.kotlin.ir.expressions.IrConstructorCall
 import org.jetbrains.kotlin.ir.symbols.IrPropertySymbol
@@ -80,7 +81,7 @@ class Fir2IrLazyPropertyAccessor(
 
     override var contextReceiverParametersCount: Int = fir.contextReceiversForFunctionOrContainingProperty().size
 
-    override var valueParameters: List<IrValueParameter> by lazyVar(lock) {
+    override var valueParameters: List<IrValueParameter> by LazyValueParameterList(lock) {
         if (!isSetter && contextReceiverParametersCount == 0) emptyList()
         else {
             declarationStorage.enterScope(this.symbol)

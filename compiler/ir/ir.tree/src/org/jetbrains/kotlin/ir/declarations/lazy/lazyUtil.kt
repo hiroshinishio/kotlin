@@ -11,7 +11,7 @@ import kotlin.reflect.KProperty
 
 fun <T> lazyVar(lock: IrLock, initializer: () -> T): ReadWriteProperty<Any?, T> = SynchronizedLazyVar(lock, initializer)
 
-private class SynchronizedLazyVar<T>(val lock: IrLock, initializer: () -> T) : ReadWriteProperty<Any?, T> {
+open class SynchronizedLazyVar<T>(val lock: IrLock, initializer: () -> T) : ReadWriteProperty<Any?, T> {
     @Volatile
     private var isInitialized = false
 
@@ -25,15 +25,22 @@ private class SynchronizedLazyVar<T>(val lock: IrLock, initializer: () -> T) : R
             @Suppress("UNCHECKED_CAST")
             if (isInitialized) return _value as T
             synchronized(lock) {
-                if (!isInitialized) {
-                    _value = initializer!!()
+                val value: T
+                if (isInitialized) {
+                    @Suppress("UNCHECKED_CAST")
+                    value = _value as T
+                } else {
+                    value = initializer!!()
+                    _value = value
                     isInitialized = true
                     initializer = null
+                    valueChanged(null, value)
                 }
-                @Suppress("UNCHECKED_CAST")
-                return _value as T
+                return value
             }
         }
+
+    protected open fun valueChanged(old: T?, new: T) {}
 
     override fun toString(): String = if (isInitialized) value.toString() else "Lazy value not initialized yet."
 
@@ -41,8 +48,11 @@ private class SynchronizedLazyVar<T>(val lock: IrLock, initializer: () -> T) : R
 
     override fun setValue(thisRef: Any?, property: KProperty<*>, value: T) {
         synchronized(lock) {
+            @Suppress("UNCHECKED_CAST")
+            val old = this._value as T
             this._value = value
             isInitialized = true
+            valueChanged(old, value)
         }
     }
 }

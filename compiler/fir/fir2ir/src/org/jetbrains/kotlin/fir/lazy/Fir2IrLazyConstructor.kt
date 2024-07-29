@@ -17,6 +17,7 @@ import org.jetbrains.kotlin.fir.declarations.utils.isInline
 import org.jetbrains.kotlin.fir.declarations.utils.visibility
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
 import org.jetbrains.kotlin.ir.declarations.*
+import org.jetbrains.kotlin.ir.declarations.lazy.IrLazyFunctionBase.LazyValueParameterList
 import org.jetbrains.kotlin.ir.declarations.lazy.lazyVar
 import org.jetbrains.kotlin.ir.expressions.IrBody
 import org.jetbrains.kotlin.ir.expressions.IrConstructorCall
@@ -102,7 +103,7 @@ class Fir2IrLazyConstructor(
 
     override var contextReceiverParametersCount: Int = fir.contextReceivers.size
 
-    override var valueParameters: List<IrValueParameter> by lazyVar(lock) {
+    override var valueParameters: List<IrValueParameter> by LazyValueParameterList(lock) {
         declarationStorage.enterScope(this.symbol)
 
         buildList {

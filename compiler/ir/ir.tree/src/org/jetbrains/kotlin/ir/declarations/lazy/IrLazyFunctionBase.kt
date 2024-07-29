@@ -7,6 +7,7 @@ package org.jetbrains.kotlin.ir.declarations.lazy
 
 import org.jetbrains.kotlin.descriptors.FunctionDescriptor
 import org.jetbrains.kotlin.descriptors.ReceiverParameterDescriptor
+import org.jetbrains.kotlin.ir.IrLock
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
 import org.jetbrains.kotlin.ir.UNDEFINED_OFFSET
 import org.jetbrains.kotlin.ir.declarations.*
@@ -58,7 +59,7 @@ interface IrLazyFunctionBase : IrLazyDeclarationBase, IrTypeParametersContainer 
                 ).apply { parent = this@IrLazyFunctionBase }
             }
             descriptor.valueParameters.mapTo(result) {
-                stubGenerator.generateValueParameterStub(it, it.index + descriptor.contextReceiverParameters.size)
+                stubGenerator.generateValueParameterStub(it)
                     .apply { parent = this@IrLazyFunctionBase }
             }
         }
@@ -76,4 +77,19 @@ interface IrLazyFunctionBase : IrLazyDeclarationBase, IrTypeParametersContainer 
         typeTranslator.buildWithScope(this) {
             descriptor.returnType!!.toIrType()
         }
+
+    class LazyValueParameterList(
+        lock: IrLock,
+        initializer: () -> List<IrValueParameter>,
+    ) : SynchronizedLazyVar<List<IrValueParameter>>(lock, initializer) {
+        @OptIn(DelicateIrParameterIndexSetter::class)
+        override fun valueChanged(old: List<IrValueParameter>?, new: List<IrValueParameter>) {
+            old?.forEach { parameter ->
+                parameter.index = -1
+            }
+            new.forEachIndexed { index, parameter ->
+                parameter.index = index
+            }
+        }
+    }
 }

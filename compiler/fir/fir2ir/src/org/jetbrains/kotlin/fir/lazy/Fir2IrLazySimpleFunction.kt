@@ -15,6 +15,7 @@ import org.jetbrains.kotlin.fir.declarations.FirRegularClass
 import org.jetbrains.kotlin.fir.declarations.FirSimpleFunction
 import org.jetbrains.kotlin.fir.initialSignatureAttr
 import org.jetbrains.kotlin.ir.declarations.*
+import org.jetbrains.kotlin.ir.declarations.lazy.IrLazyFunctionBase.LazyValueParameterList
 import org.jetbrains.kotlin.ir.declarations.lazy.lazyVar
 import org.jetbrains.kotlin.ir.expressions.IrConstructorCall
 import org.jetbrains.kotlin.ir.symbols.IrSimpleFunctionSymbol
@@ -71,7 +72,7 @@ class Fir2IrLazySimpleFunction(
 
     override var contextReceiverParametersCount: Int = fir.contextReceiversForFunctionOrContainingProperty().size
 
-    override var valueParameters: List<IrValueParameter> by lazyVar(lock) {
+    override var valueParameters: List<IrValueParameter> by LazyValueParameterList(lock) {
         declarationStorage.enterScope(this.symbol)
 
         buildList {

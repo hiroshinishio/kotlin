@@ -10,6 +10,7 @@ import org.jetbrains.kotlin.descriptors.FunctionDescriptor
 import org.jetbrains.kotlin.descriptors.Modality
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
 import org.jetbrains.kotlin.ir.declarations.*
+import org.jetbrains.kotlin.ir.declarations.lazy.IrLazyFunctionBase.LazyValueParameterList
 import org.jetbrains.kotlin.ir.expressions.IrBody
 import org.jetbrains.kotlin.ir.expressions.IrConstructorCall
 import org.jetbrains.kotlin.ir.symbols.IrPropertySymbol
@@ -70,7 +71,7 @@ class IrLazyFunction(
         if (tryLoadIr()) extensionReceiverParameter else createReceiverParameter(descriptor.extensionReceiverParameter)
     }
 
-    override var valueParameters: List<IrValueParameter> by lazyVar(stubGenerator.lock) {
+    override var valueParameters: List<IrValueParameter> by LazyValueParameterList(stubGenerator.lock) {
         if (tryLoadIr()) valueParameters else createValueParameters()
     }
 

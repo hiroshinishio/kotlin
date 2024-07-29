@@ -9,6 +9,7 @@ import org.jetbrains.kotlin.descriptors.ClassConstructorDescriptor
 import org.jetbrains.kotlin.descriptors.DescriptorVisibility
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
 import org.jetbrains.kotlin.ir.declarations.*
+import org.jetbrains.kotlin.ir.declarations.lazy.IrLazyFunctionBase.LazyValueParameterList
 import org.jetbrains.kotlin.ir.expressions.IrBody
 import org.jetbrains.kotlin.ir.expressions.IrConstructorCall
 import org.jetbrains.kotlin.ir.symbols.IrConstructorSymbol
@@ -52,7 +53,7 @@ class IrLazyConstructor(
         createReceiverParameter(descriptor.extensionReceiverParameter)
     }
 
-    override var valueParameters: List<IrValueParameter> by lazyVar(stubGenerator.lock) { createValueParameters() }
+    override var valueParameters: List<IrValueParameter> by LazyValueParameterList(stubGenerator.lock) { createValueParameters() }
 
     override var contextReceiverParametersCount: Int = descriptor.contextReceiverParameters.size
 

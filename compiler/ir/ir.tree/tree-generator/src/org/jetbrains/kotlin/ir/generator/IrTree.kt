@@ -253,11 +253,13 @@ object IrTree : AbstractTreeBuilder() {
         }
         +field("defaultValue", expressionBody, nullable = true)
 
+        addImport(ArbitraryImportable(Packages.declarations, "DelicateIrParameterIndexSetter"))
         generationCallback = {
             println()
             printPropertyDeclaration("index", int, VariableKind.VAR, initializer = "-1")
             println()
             withIndent {
+                println("@DelicateIrParameterIndexSetter")
                 println("internal set")
             }
         }
@@ -404,7 +406,6 @@ object IrTree : AbstractTreeBuilder() {
         +field("returnType", irTypeType)
         +field("dispatchReceiverParameter", valueParameter, nullable = true)
         +field("extensionReceiverParameter", valueParameter, nullable = true)
-        +listField("valueParameters", valueParameter, mutability = Var)
         // The first `contextReceiverParametersCount` value parameters are context receivers.
         +field("contextReceiverParametersCount", int)
         +field("body", body, nullable = true)
