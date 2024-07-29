@@ -5,6 +5,7 @@
 
 package org.jetbrains.kotlin.fir.types
 
+import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.name.Name
 
 /**
@@ -23,4 +24,14 @@ abstract class ConeClassifierLookupTag : ConeTypeConstructorMarker {
     override fun toString(): String {
         return name.asString()
     }
+}
+
+/**
+ * @see org.jetbrains.kotlin.fir.types.ConeClassifierLookupTag
+ */
+abstract class ConeClassLikeLookupTag : ConeClassifierLookupTag() {
+    abstract val classId: ClassId
+
+    override val name: Name
+        get() = classId.shortClassName
 }
