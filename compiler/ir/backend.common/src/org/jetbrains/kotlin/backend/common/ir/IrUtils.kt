@@ -31,7 +31,6 @@ fun IrReturnTarget.returnType(context: CommonBackendContext) =
 inline fun IrSimpleFunction.addDispatchReceiver(builder: IrValueParameterBuilder.() -> Unit): IrValueParameter =
     IrValueParameterBuilder().run {
         builder()
-        index = -1
         name = "this".synthesizedName
         factory.buildValueParameter(this, this@addDispatchReceiver).also { receiver ->
             dispatchReceiverParameter = receiver
@@ -42,7 +41,6 @@ fun IrSimpleFunction.addExtensionReceiver(type: IrType, origin: IrDeclarationOri
     IrValueParameterBuilder().run {
         this.type = type
         this.origin = origin
-        this.index = -1
         this.name = "receiver".synthesizedName
         factory.buildValueParameter(this, this@addExtensionReceiver).also { receiver ->
             extensionReceiverParameter = receiver
