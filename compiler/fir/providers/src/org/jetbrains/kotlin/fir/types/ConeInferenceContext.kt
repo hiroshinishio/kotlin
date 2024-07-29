@@ -56,8 +56,8 @@ interface ConeInferenceContext : TypeSystemInferenceExtensionContext, ConeTypeCo
     }
 
     override fun createFlexibleType(lowerBound: RigidTypeMarker, upperBound: RigidTypeMarker): KotlinTypeMarker {
-        require(lowerBound is ConeKotlinType)
-        require(upperBound is ConeKotlinType)
+        require(lowerBound is ConeRigidType)
+        require(upperBound is ConeRigidType)
 
         return coneFlexibleOrSimpleType(this, lowerBound, upperBound)
     }
@@ -151,7 +151,7 @@ interface ConeInferenceContext : TypeSystemInferenceExtensionContext, ConeTypeCo
     }
 
     override fun RigidTypeMarker.isExtensionFunction(): Boolean {
-        require(this is ConeKotlinType)
+        require(this is ConeRigidType)
         return this.isExtensionFunctionType
     }
 
@@ -270,7 +270,7 @@ interface ConeInferenceContext : TypeSystemInferenceExtensionContext, ConeTypeCo
     }
 
     override fun RigidTypeMarker.makeRigidTypeDefinitelyNotNullOrNotNull(): RigidTypeMarker {
-        require(this is ConeKotlinType)
+        require(this is ConeRigidType)
         return makeConeTypeDefinitelyNotNullOrNotNull(this@ConeInferenceContext) as RigidTypeMarker
     }
 
@@ -305,13 +305,13 @@ interface ConeInferenceContext : TypeSystemInferenceExtensionContext, ConeTypeCo
     }
 
     override fun RigidTypeMarker.replaceArguments(newArguments: List<TypeArgumentMarker>): RigidTypeMarker {
-        require(this is ConeKotlinType)
+        require(this is ConeRigidType)
         @Suppress("UNCHECKED_CAST")
         return this.withArguments((newArguments as List<ConeTypeProjection>).toTypedArray())
     }
 
     override fun RigidTypeMarker.replaceArguments(replacement: (TypeArgumentMarker) -> TypeArgumentMarker): RigidTypeMarker {
-        require(this is ConeKotlinType)
+        require(this is ConeRigidType)
         return this.withArguments { replacement(it) as ConeTypeProjection }
     }
 

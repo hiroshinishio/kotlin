@@ -397,16 +397,16 @@ interface ConeTypeContext : TypeSystemContext, TypeSystemOptimizationContext, Ty
         if (isError()) return false
         require(this is ConeRigidType)
         return when (this) {
+            is ConeLookupTagBasedType -> {
+                val typeConstructor = this.typeConstructor()
+                typeConstructor is ConeClassifierLookupTag
+            }
             is ConeCapturedType -> true
             is ConeTypeVariableType -> false
             is ConeIntersectionType -> false
             is ConeIntegerLiteralType -> true
             is ConeStubType -> true
             is ConeDefinitelyNotNullType -> true
-            is ConeLookupTagBasedType -> {
-                val typeConstructor = this.typeConstructor()
-                return typeConstructor is ConeClassifierLookupTag
-            }
         }
     }
 
