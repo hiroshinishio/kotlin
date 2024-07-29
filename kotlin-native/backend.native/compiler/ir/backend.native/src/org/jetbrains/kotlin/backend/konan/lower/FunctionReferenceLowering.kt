@@ -428,7 +428,6 @@ internal class FunctionReferenceLowering(val generationState: NativeGenerationSt
                 parameter.copyTo(
                         this,
                         DECLARATION_ORIGIN_FUNCTION_REFERENCE_IMPL,
-                        index,
                         type = substituteBoundValueParameterType(parameter.type)
                 )
             }
@@ -582,11 +581,11 @@ internal class FunctionReferenceLowering(val generationState: NativeGenerationSt
                                                         && functionParameterTypes[unboundIndex].isNothing()
                                                 ) {
                                                     parameter.copyTo(
-                                                            function, DECLARATION_ORIGIN_FUNCTION_REFERENCE_IMPL, unboundIndex,
+                                                            function, DECLARATION_ORIGIN_FUNCTION_REFERENCE_IMPL,
                                                             type = parameter.type)
                                                 } else {
                                                     superFunction.valueParameters[unboundIndex].copyTo(
-                                                            function, DECLARATION_ORIGIN_FUNCTION_REFERENCE_IMPL, unboundIndex,
+                                                            function, DECLARATION_ORIGIN_FUNCTION_REFERENCE_IMPL,
                                                             type = functionParameterTypes[unboundIndex])
                                                 }
                                                 ++unboundIndex

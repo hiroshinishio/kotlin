@@ -222,16 +222,15 @@ class ComposableDefaultParamLowering(
 
         // move receiver parameters to value parameters
         var dispatcherReceiver = wrapper.dispatchReceiverParameter
-        var index = wrapper.valueParameters.size
         if (dispatcherReceiver != null) {
-            dispatcherReceiver = dispatcherReceiver.copyTo(wrapper, index = index++)
+            dispatcherReceiver = dispatcherReceiver.copyTo(wrapper)
             wrapper.valueParameters += dispatcherReceiver
             wrapper.dispatchReceiverParameter = null
         }
 
         var extensionReceiver = wrapper.extensionReceiverParameter
         if (extensionReceiver != null) {
-            extensionReceiver = extensionReceiver.copyTo(wrapper, index = index)
+            extensionReceiver = extensionReceiver.copyTo(wrapper)
             wrapper.valueParameters += extensionReceiver
             wrapper.extensionReceiverParameter = null
         }
