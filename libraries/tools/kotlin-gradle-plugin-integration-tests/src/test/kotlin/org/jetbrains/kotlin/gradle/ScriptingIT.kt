@@ -9,7 +9,6 @@ import org.gradle.api.logging.LogLevel
 import org.gradle.util.GradleVersion
 import org.jetbrains.kotlin.gradle.scripting.internal.ScriptingGradleSubplugin
 import org.jetbrains.kotlin.gradle.testbase.*
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.condition.OS
 import kotlin.io.path.relativeTo
@@ -20,7 +19,7 @@ import kotlin.io.path.relativeTo
 )
 @DisplayName("Scripting plugin")
 @OtherGradlePluginTests
-@GradleTestVersions(minVersion = TestVersions.Gradle.G_8_0) // workaround for a Gradle synchronization bug: https://github.com/gradle/gradle/issues/23450
+@GradleTestVersions(minVersion = TestVersions.Gradle.G_8_1) // workaround for a Gradle synchronization bug: https://github.com/gradle/gradle/issues/23450
 abstract class ScriptingIT : KGPBaseTest() {
 
     @DisplayName("basic script is working")
