@@ -253,6 +253,16 @@ class ControlFlowGraphBuilder {
     // for them may not have been computed yet. Instead, these edges are redirected
     // into the outer call. The outermost call *has* to be completed, so at some point
     // all data will be unified in a single call node.
+    //
+    // Case 1 also requires tracking variable capturing, as vals and vars have differences in
+    // how they are captured. Vars are always captured by reference, so they do not need to be
+    // initialized when captured. However, vals are captured by value, so they must be
+    // initialized when the lambda is created.
+    //
+    // To achieve this, add a node within the call arguments to indicate when the lambda is
+    // created and will capture local variables. This node will be linked to the anonymous
+    // function enter node and used during variable initialization analysis to determine if
+    // captured vals are correctly initialized.
     fun enterAnonymousFunctionExpression(anonymousFunctionExpression: FirAnonymousFunctionExpression): Pair<AnonymousFunctionExpressionNode?, AnonymousFunctionCaptureNode?> {
         val symbol = anonymousFunctionExpression.anonymousFunction.symbol
         val enterNode = postponedAnonymousFunctionNodes[symbol]?.first ?: run {
