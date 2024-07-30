@@ -10,7 +10,6 @@ import org.gradle.api.GradleException
 import org.gradle.api.NamedDomainObjectContainer
 import org.jetbrains.kotlin.gradle.dsl.HasConfigurableKotlinCompilerOptions
 import org.jetbrains.kotlin.gradle.dsl.KotlinJsCompilerOptions
-import org.jetbrains.kotlin.gradle.dsl.KotlinJsDce
 import org.jetbrains.kotlin.gradle.plugin.KotlinTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.HasBinaries
 import org.jetbrains.kotlin.gradle.targets.js.KotlinJsPlatformTestRun
@@ -106,8 +105,11 @@ interface KotlinJsBrowserDsl : KotlinJsSubTargetDsl {
 
     fun webpackTask(body: Action<KotlinWebpack>)
 
+    @Deprecated(
+        "dceTask configuration is useless with IR compiler. Use @JsExport on declarations instead.",
+    )
     @ExperimentalDceDsl
-    fun dceTask(body: Action<KotlinJsDce>)
+    fun dceTask(body: Action<@Suppress("DEPRECATION") org.jetbrains.kotlin.gradle.dsl.KotlinJsDce>)
 }
 
 interface KotlinJsNodeDsl : KotlinJsSubTargetDsl {
