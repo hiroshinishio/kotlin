@@ -10,6 +10,7 @@ import org.jetbrains.kotlin.fir.analysis.cfa.FirCallsEffectAnalyzer
 import org.jetbrains.kotlin.fir.analysis.cfa.FirPropertyInitializationAnalyzer
 import org.jetbrains.kotlin.fir.analysis.checkers.cfa.FirControlFlowChecker
 import org.jetbrains.kotlin.fir.analysis.checkers.declaration.*
+import org.jetbrains.kotlin.fir.analysis.checkers.type.RedundantExplicitTypeChecker
 import org.jetbrains.kotlin.fir.analysis.checkers.syntax.*
 
 object CommonDeclarationCheckers : DeclarationCheckers() {
@@ -87,7 +88,8 @@ object CommonDeclarationCheckers : DeclarationCheckers() {
             ContractSyntaxV2PropertyChecker,
             FirVolatileAnnotationChecker,
             FirInlinePropertyChecker,
-            FirContextReceiversPropertyBackingFieldChecker
+            FirContextReceiversPropertyBackingFieldChecker,
+            RedundantExplicitTypeChecker,
         )
 
     override val backingFieldCheckers: Set<FirBackingFieldChecker>
