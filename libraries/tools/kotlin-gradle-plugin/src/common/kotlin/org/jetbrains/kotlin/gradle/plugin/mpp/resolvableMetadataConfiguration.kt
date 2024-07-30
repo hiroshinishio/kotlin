@@ -33,6 +33,7 @@ internal val InternalKotlinSourceSet.resolvableMetadataConfiguration: Configurat
     val configuration = project.configurations
         .maybeCreateResolvable(resolvableMetadataConfigurationName)
         .configureMetadataDependenciesAttribute(project)
+    configuration.attributes.setAttribute(sourceSetsMetadataAttribute, true)
 
     addDependsOnClosureConfigurationsTo(configuration)
 
