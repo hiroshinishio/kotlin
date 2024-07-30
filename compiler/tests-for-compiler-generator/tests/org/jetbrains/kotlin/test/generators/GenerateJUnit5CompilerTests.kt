@@ -437,8 +437,6 @@ fun generateJUnit5CompilerTests(args: Array<String>, mainClassName: String?) {
                 model(
                     "resolveFreezesIDE",
                     pattern = """^(.+)\.(nkt)$""",
-                    skipSpecificFile = skipSpecificFileForFirDiagnosticTest(onlyTypealiases),
-                    skipTestAllFilesCheck = onlyTypealiases
                 )
             }
 
