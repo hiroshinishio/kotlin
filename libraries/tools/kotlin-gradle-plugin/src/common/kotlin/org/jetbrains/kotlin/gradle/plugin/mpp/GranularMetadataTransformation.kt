@@ -12,6 +12,7 @@ import org.gradle.api.artifacts.result.ResolvedDependencyResult
 import org.gradle.api.attributes.AttributeContainer
 import org.gradle.api.file.FileCollection
 import org.gradle.api.logging.Logging
+import org.gradle.api.model.ObjectFactory
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.dsl.multiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.*
@@ -20,6 +21,7 @@ import org.jetbrains.kotlin.gradle.plugin.mpp.MetadataDependencyResolution.Choos
 import org.jetbrains.kotlin.gradle.plugin.mpp.internal.projectStructureMetadataResolvableConfiguration
 import org.jetbrains.kotlin.gradle.plugin.sources.internal
 import org.jetbrains.kotlin.gradle.utils.*
+import java.io.File
 import java.util.*
 
 internal sealed class MetadataDependencyResolution(
@@ -101,6 +103,7 @@ internal class GranularMetadataTransformation(
         val projectData: Map<String, ProjectData>,
         val platformCompilationSourceSets: Set<String>,
         val projectStructureMetadataResolvableConfiguration: LazyResolvedConfiguration?,
+        val objects: ObjectFactory,
     ) {
         constructor(project: Project, kotlinSourceSet: KotlinSourceSet) : this(
             build = project.currentBuild,
@@ -112,6 +115,7 @@ internal class GranularMetadataTransformation(
             platformCompilationSourceSets = project.multiplatformExtension.platformCompilationSourceSets,
             projectStructureMetadataResolvableConfiguration =
             kotlinSourceSet.internal.projectStructureMetadataResolvableConfiguration?.let { LazyResolvedConfiguration(it) },
+            objects = project.objects
         )
     }
 
@@ -273,10 +277,18 @@ internal class GranularMetadataTransformation(
         val visibleSourceSetsExcludingDependsOn = allVisibleSourceSets.filterTo(mutableSetOf()) { it !in sourceSetsVisibleInParents }
 
         @Suppress("DEPRECATION") val metadataProvider = when (mppDependencyMetadataExtractor) {
-            is AbstractProjectMppDependencyProjectStructureMetadataExtractor -> ProjectMetadataProvider(
-                sourceSetMetadataOutputs = params.projectData[mppDependencyMetadataExtractor.projectPath]?.sourceSetMetadataOutputs
-                    ?.getOrThrow() ?: error("Unexpected project path '${mppDependencyMetadataExtractor.projectPath}'")
-            )
+            is AbstractProjectMppDependencyProjectStructureMetadataExtractor -> {
+                val sourceSetMetadataOutputs = compositeMetadataArtifact.file.readLines()
+                    .map { line -> line.split(" => ") }
+                    .associate { (sourceSetName, classDir) ->
+                        sourceSetName to SourceSetMetadataOutputs(
+                            params.objects.fileCollection().from(File(classDir))
+                        )
+                    }
+                ProjectMetadataProvider(
+                    sourceSetMetadataOutputs = sourceSetMetadataOutputs
+                )
+            }
             is JarMppDependencyProjectStructureMetadataExtractor -> ArtifactMetadataProvider(
                 CompositeMetadataArtifactImpl(
                     moduleDependencyIdentifier = dependency.toModuleDependencyIdentifier(),
