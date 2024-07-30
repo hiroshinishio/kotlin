@@ -5,7 +5,6 @@
 
 package org.jetbrains.kotlin.gradle.plugin.mpp
 
-import com.google.gson.GsonBuilder
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.ProjectLayout
 import org.gradle.api.file.RegularFile
@@ -13,6 +12,7 @@ import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.*
 import org.gradle.work.DisableCachingByDefault
+import org.jetbrains.kotlin.gradle.plugin.mpp.internal.MetadataJsonSerialisationTool
 import java.io.File
 import javax.inject.Inject
 
@@ -56,7 +56,8 @@ abstract class GenerateProjectStructureMetadata : DefaultTask() {
         val resultString = kotlinProjectStructureMetadata.toJson()
         resultFile.writeText(resultString)
 
-        sourceSetMetadataOutputsFile.get().asFile.writeText(metadataOutputsBySourceSet.toJson())
+        val metadataOutputsJson = MetadataJsonSerialisationTool.toJson(metadataOutputsBySourceSet)
+        sourceSetMetadataOutputsFile.get().asFile.writeText(metadataOutputsJson)
     }
 
     internal data class SourceSetOutputs(
@@ -69,11 +70,7 @@ abstract class GenerateProjectStructureMetadata : DefaultTask() {
 
     private val metadataOutputsBySourceSet
         get() = sourceSetOutputs.get()
-            .associate { it.sourceSetName to it.metadataOutput.get().absolutePath }
-
-    private fun Map<String, String>.toJson(): String {
-        return GsonBuilder().setPrettyPrinting().create().toJson(this@toJson)
-    }
+            .associate { it.sourceSetName to it.metadataOutput.get() }
 }
 
 
