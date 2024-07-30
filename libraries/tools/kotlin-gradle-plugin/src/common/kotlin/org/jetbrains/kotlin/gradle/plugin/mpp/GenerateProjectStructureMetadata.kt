@@ -5,15 +5,21 @@
 
 package org.jetbrains.kotlin.gradle.plugin.mpp
 
+import com.google.gson.GsonBuilder
 import org.gradle.api.DefaultTask
-import org.gradle.api.file.Directory
 import org.gradle.api.file.ProjectLayout
+import org.gradle.api.file.RegularFile
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.*
 import org.gradle.work.DisableCachingByDefault
 import java.io.File
 import javax.inject.Inject
+
+internal const val SOURCE_SET_METADATA = "source-sets-metadata.json"
+internal const val MULTIPLATFORM_PROJECT_METADATA_FILE_NAME = "kotlin-project-structure-metadata.xml"
+internal const val MULTIPLATFORM_PROJECT_METADATA_JSON_FILE_NAME = "kotlin-project-structure-metadata.json"
+internal const val EMPTY_PROJECT_STRUCTURE_METADATA_FILE_NAME = "empty-kotlin-project-structure-metadata"
 
 @DisableCachingByDefault
 abstract class GenerateProjectStructureMetadata : DefaultTask() {
@@ -35,19 +41,10 @@ abstract class GenerateProjectStructureMetadata : DefaultTask() {
         ).get().asFile
 
     @get:OutputFile
-    internal val sourceSetMetadataOutputsFile: File
-        get() = projectLayout.buildDirectory.file(
-            "internal/$SOURCE_SET_METADATA"
-        ).get().asFile
-
-
-    internal data class SourceSetOutputs(
-        @get:Input
-        val sourceSetName: String,
-        @get:Input
-        @get:Optional
-        val metadataOutput: Provider<File>
+    internal val sourceSetMetadataOutputsFile: Provider<RegularFile> = projectLayout.buildDirectory.file(
+        "internal/kmp/$SOURCE_SET_METADATA"
     )
+
 
     @get:Nested
     internal abstract val sourceSetOutputs: ListProperty<SourceSetOutputs>
@@ -55,17 +52,30 @@ abstract class GenerateProjectStructureMetadata : DefaultTask() {
     @TaskAction
     fun generateMetadataXml() {
         resultFile.parentFile.mkdirs()
+
         val resultString = kotlinProjectStructureMetadata.toJson()
         resultFile.writeText(resultString)
 
-        val sourceSetMetadataOutputsFileContent = sourceSetOutputs.get().joinToString("\n") {
-            "${it.sourceSetName} => ${it.metadataOutput.get().absolutePath}"
-        }
-        sourceSetMetadataOutputsFile.writeText(sourceSetMetadataOutputsFileContent)
+        sourceSetMetadataOutputsFile.get().asFile.writeText(metadataOutputsBySourceSet.toJson())
+    }
+
+    internal data class SourceSetOutputs(
+        @get:Input
+        val sourceSetName: String,
+        @get:Input
+        @get:Optional
+        val metadataOutput: Provider<File>,
+    )
+
+    private val metadataOutputsBySourceSet
+        get() = sourceSetOutputs.get()
+            .associate { it.sourceSetName to it.metadataOutput.get().absolutePath }
+
+    private fun Map<String, String>.toJson(): String {
+        return GsonBuilder().setPrettyPrinting().create().toJson(this@toJson)
     }
 }
 
-internal const val SOURCE_SET_METADATA = "sourceSetMetadata.txt"
-internal const val MULTIPLATFORM_PROJECT_METADATA_FILE_NAME = "kotlin-project-structure-metadata.xml"
-internal const val MULTIPLATFORM_PROJECT_METADATA_JSON_FILE_NAME = "kotlin-project-structure-metadata.json"
-internal const val EMPTY_PROJECT_STRUCTURE_METADATA_FILE_NAME = "empty-kotlin-project-structure-metadata"
+
+
+
