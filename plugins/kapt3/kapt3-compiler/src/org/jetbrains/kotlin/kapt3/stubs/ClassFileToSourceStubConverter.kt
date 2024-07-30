@@ -45,7 +45,9 @@ import org.jetbrains.kotlin.fir.resolve.diagnostics.ConeUnresolvedError
 import org.jetbrains.kotlin.fir.resolve.providers.symbolProvider
 import org.jetbrains.kotlin.fir.resolve.transformers.PackageResolutionResult
 import org.jetbrains.kotlin.fir.resolve.transformers.resolveToPackageOrClass
+import org.jetbrains.kotlin.fir.scopes.impl.declaredMemberScope
 import org.jetbrains.kotlin.fir.symbols.ConeClassLikeLookupTag
+import org.jetbrains.kotlin.fir.symbols.impl.FirClassSymbol
 import org.jetbrains.kotlin.fir.types.*
 import org.jetbrains.kotlin.ir.declarations.IrFile
 import org.jetbrains.kotlin.ir.declarations.IrMetadataSourceOwner
@@ -67,7 +69,6 @@ import org.jetbrains.kotlin.kapt3.util.*
 import org.jetbrains.kotlin.load.java.JvmAbi
 import org.jetbrains.kotlin.load.java.sources.JavaSourceElement
 import org.jetbrains.kotlin.load.kotlin.TypeMappingMode
-import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.name.isOneSegmentFQN
@@ -253,8 +254,8 @@ class ClassFileToSourceStubConverter(val kaptContext: KaptContextForStubGenerati
         val ktFile = origin.element?.containingFile as? KtFile
         val firFile = (origin.descriptor as? IrBasedClassDescriptor)?.owner?.fileOrNull?.let { findFirFile(it) }
         val imports =
-            if (ktFile != null && correctErrorTypes) convertImports(ktFile, classDeclaration)
-            else if (firFile != null && correctErrorTypes) convertImports(firFile, classDeclaration)
+            if (firFile != null && correctErrorTypes) convertImports(firFile, classDeclaration)
+            else if (ktFile != null && correctErrorTypes) convertImports(ktFile, classDeclaration)
             else JavacList.nil()
 
         val classes = JavacList.of<JCTree>(classDeclaration)
@@ -390,19 +391,20 @@ class ClassFileToSourceStubConverter(val kaptContext: KaptContextForStubGenerati
             val shortName = importedFqName.shortName()
             if (shortName.asString() == classDeclaration.simpleName.toString()) continue
 
-            val importedClassId = (importDirective as? FirResolvedImport)?.resolvedParentClassId ?: ClassId.topLevel(importedFqName)
-            val importedReference = resolveToPackageOrClass(firSession.symbolProvider, importedClassId)
+            val isTopLevelCallable = firSession.symbolProvider.getTopLevelCallableSymbols(importedFqName.parent(), shortName).isNotEmpty()
+            if (isTopLevelCallable) continue
 
-            if (importedReference is PackageResolutionResult.PackageOrClass) {
-                val isEnumEntry = importedReference.classSymbol?.classKind == ClassKind.ENUM_CLASS &&
-                        importedClassId.shortClassName != shortName
-                val isAllUnderClassImport = importDirective.isAllUnder && importedReference.classSymbol != null
+            val resolvedParentClassId = (importDirective as? FirResolvedImport)?.resolvedParentClassId
+            val importedClass = resolvedParentClassId?.let { resolveToPackageOrClass(firSession.symbolProvider, it) }
+            if (importedClass is PackageResolutionResult.PackageOrClass) {
+                val classSymbol = importedClass.classSymbol
+                val isEnumEntry = classSymbol?.classKind == ClassKind.ENUM_CLASS
+                if (isEnumEntry) continue
 
-                if (isEnumEntry || isAllUnderClassImport) continue
-            } else {
-                val isCallable = firSession.symbolProvider.getTopLevelCallableSymbols(importedFqName.parent(), shortName)
-                    .isNotEmpty()
-                if (isCallable) continue
+                if (classSymbol is FirClassSymbol<*>) {
+                    if (importDirective.isAllUnder) continue
+                    if (shortName in firSession.declaredMemberScope(classSymbol, null).getCallableNames()) continue
+                }
             }
 
             val importedExpr = treeMaker.FqName(importedFqName.asString())

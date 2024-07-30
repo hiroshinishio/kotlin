@@ -300,6 +300,12 @@ public class KotlinKapt4ContextTestGenerated extends AbstractKotlinKapt4ContextT
   }
 
   @Test
+  @TestMetadata("importNestedClass.kt")
+  public void testImportNestedClass() {
+    runTest("plugins/kapt4/../kapt3/kapt3-compiler/testData/converter/importNestedClass.kt");
+  }
+
+  @Test
   @TestMetadata("importsForErrorTypes.kt")
   public void testImportsForErrorTypes() {
     runTest("plugins/kapt4/../kapt3/kapt3-compiler/testData/converter/importsForErrorTypes.kt");
