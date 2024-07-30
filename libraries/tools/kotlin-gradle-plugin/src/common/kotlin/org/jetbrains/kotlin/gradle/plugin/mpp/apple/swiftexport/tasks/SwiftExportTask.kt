@@ -95,14 +95,14 @@ internal fun Collection<File>.filterNotCinteropKlibs(): List<File> = filterNot(F
 internal fun LazyResolvedConfiguration.swiftExportedModules(): List<SwiftExportedModule> {
     return allResolvedDependencies.filterNot { dependencyResult ->
         dependencyResult.resolvedVariant.owner.let { id -> id is ModuleComponentIdentifier && id.module == "kotlin-stdlib" }
-    }.map { dependencyResult ->
-        val dependencyArtifacts = getArtifacts(dependencyResult)
+    }.map { it.selected }.distinct().map { component ->
+        val dependencyArtifacts = getArtifacts(component)
             .map { it.file }
             .filterNotCinteropKlibs()
 
         if (dependencyArtifacts.isEmpty() || dependencyArtifacts.size > 1) {
             throw AssertionError(
-                "Dependency $dependencyResult ${
+                "Component $component ${
                     if (dependencyArtifacts.isEmpty())
                         "doesn't have suitable artifacts"
                     else
@@ -111,11 +111,15 @@ internal fun LazyResolvedConfiguration.swiftExportedModules(): List<SwiftExporte
             )
         }
 
-        when (val dependencyModule = dependencyResult.resolvedVariant.owner) {
+        Pair(component, dependencyArtifacts.single())
+    }.distinctBy { (_, artifact) ->
+        artifact
+    }.map { (component, artifact) ->
+        when (val dependencyModule = component.id) {
             is ProjectComponentIdentifier -> dashSeparatedToUpperCamelCase(dependencyModule.projectName)
             is ModuleComponentIdentifier -> dashSeparatedToUpperCamelCase(dependencyModule.moduleIdentifier.name)
             is LibraryBinaryIdentifier -> dashSeparatedToUpperCamelCase(dependencyModule.libraryName)
-            else -> throw AssertionError("Unsupported dependency $dependencyResult")
-        }.let { SwiftExportedModule(it, dependencyArtifacts.single()) }
+            else -> throw AssertionError("Unsupported component $component")
+        }.let { SwiftExportedModule(it, artifact) }
     }
 }
