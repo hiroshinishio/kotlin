@@ -245,17 +245,15 @@ class SwiftExportUnitTests {
 
         val modules = configuration.swiftExportedModules()
 
-        assertNotNull(modules.firstOrNull { it.moduleName == "Subproject" })
-
-        val subProject = modules.first { it.moduleName == "Subproject" }
+        val subProject = modules.single { it.moduleName == "Subproject" }
         assertEquals(subProject.moduleName, "Subproject")
         assertEquals(subProject.artifact.name, "subproject.klib")
 
-        val kotlinXCoroutines = modules.first { it.moduleName == "KotlinxCoroutinesCore" }
+        val kotlinXCoroutines = modules.single { it.moduleName == "KotlinxCoroutinesCore" }
         assertEquals(kotlinXCoroutines.moduleName, "KotlinxCoroutinesCore")
         assertEquals(kotlinXCoroutines.artifact.name, "kotlinx-coroutines-core.klib")
 
-        val atomicFu = modules.first { it.moduleName == "Atomicfu" }
+        val atomicFu = modules.single { it.moduleName == "Atomicfu" }
         assertEquals(atomicFu.moduleName, "Atomicfu")
         assertEquals(atomicFu.artifact.name, "atomicfu.klib")
     }
