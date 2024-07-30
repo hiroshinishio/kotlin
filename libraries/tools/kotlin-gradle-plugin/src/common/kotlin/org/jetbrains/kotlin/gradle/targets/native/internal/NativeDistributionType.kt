@@ -18,16 +18,16 @@ internal enum class NativeDistributionType(val suffix: String?, val mustGenerate
     PREBUILT("prebuilt", false),
 }
 
-internal class NativeDistributionTypeProvider(private val project: Project) {
-    private val propertiesProvider = PropertiesProvider(project)
-
+internal class NativeDistributionTypeProvider(private val propertiesProvider: PropertiesProvider) {
     fun getDistributionType(): NativeDistributionType {
-        return when (val type = propertiesProvider.nativeDistributionType?.toLowerCaseAsciiOnly()) {
+//        return when (val type = propertiesProvider.nativeDistributionType?.toLowerCaseAsciiOnly()) {
+        return when (propertiesProvider.nativeDistributionType?.toLowerCaseAsciiOnly()) {
             null -> PREBUILT
             "prebuilt" -> PREBUILT
             "light" -> LIGHT
             else -> {
-                project.reportDiagnosticOncePerBuild(KotlinToolingDiagnostics.UnrecognizedKotlinNativeDistributionType(type))
+                //TODO
+//                project.reportDiagnosticOncePerBuild(KotlinToolingDiagnostics.UnrecognizedKotlinNativeDistributionType(type))
                 PREBUILT
             }
         }

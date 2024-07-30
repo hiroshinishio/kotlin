@@ -7,17 +7,22 @@ package org.jetbrains.kotlin.gradle.targets.native.toolchain
 
 import org.gradle.api.Project
 import org.gradle.api.file.ConfigurableFileCollection
-import org.gradle.api.file.DirectoryProperty
-import org.gradle.api.provider.Property
-import org.gradle.api.provider.Provider
+import org.gradle.api.model.ObjectFactory
+import org.gradle.api.provider.*
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
+import org.gradle.internal.cc.base.logger
+import org.jetbrains.kotlin.gradle.internal.properties.NativeProperties
 import org.jetbrains.kotlin.gradle.internal.properties.nativeProperties
 import org.jetbrains.kotlin.gradle.plugin.KOTLIN_NATIVE_BUNDLE_CONFIGURATION_NAME
+import org.jetbrains.kotlin.gradle.plugin.PropertiesProvider
 import org.jetbrains.kotlin.gradle.plugin.PropertiesProvider.Companion.kotlinPropertiesProvider
+import org.jetbrains.kotlin.gradle.plugin.mpp.apple.useXcodeMessageStyle
+import org.jetbrains.kotlin.gradle.targets.native.KonanPropertiesBuildService
 import org.jetbrains.kotlin.gradle.utils.NativeCompilerDownloader
 import org.jetbrains.kotlin.gradle.utils.property
 import org.jetbrains.kotlin.konan.target.KonanTarget
+import java.io.File
 
 /**
  * This is a nested provider for all native tasks
@@ -46,8 +51,7 @@ internal class KotlinNativeProvider(
     val toolchainEnabled: Provider<Boolean> = project.nativeProperties.isToolchainEnabled
 
     @get:Internal
-    val bundleDirectory: DirectoryProperty = project.objects.directoryProperty()
-        .fileProvider(project.nativeProperties.actualNativeHomeDirectory)
+    val bundleDirectory: Provider<String> = project.nativeProperties.actualNativeHomeDirectory.map { it.absolutePath }
 
     @get:Internal
     val overriddenKonanHome: Provider<String> = project.nativeProperties.userProvidedNativeHome
@@ -56,25 +60,66 @@ internal class KotlinNativeProvider(
     val reinstallBundle: Property<Boolean> = project.objects.property(project.kotlinPropertiesProvider.nativeReinstall)
 
     @get:Input
-    internal val kotlinNativeBundleVersion: Provider<String> = bundleDirectory.zip(reinstallBundle) { bundleDir, reinstallFlag ->
-        val kotlinNativeVersion =
-            if (overriddenKonanHome.isPresent)
-                overriddenKonanHome.get()
-            else
-                NativeCompilerDownloader.getDependencyNameWithOsAndVersion(project)
+    internal val kotlinNativeBundleVersion: Provider<String> = project.providers.of(NativeVersionValueSource::class.java) {
+        it.parameters.bundleDirectory.set(bundleDirectory)
+        it.parameters.reinstallBundle.set(reinstallBundle)
+        it.parameters.overriddenKonanHome.set(overriddenKonanHome)
+        it.parameters.dependencyNameWithOsAndVersion.set(NativeCompilerDownloader.getDependencyNameWithOsAndVersion(project))
+        it.parameters.kotlinNativeBundleBuildService.set(kotlinNativeBundleBuildService)
+        it.parameters.toolchainEnabled.set(toolchainEnabled)
+        it.parameters.objectFactory.set(project.objects)
+        it.parameters.konanTargets.set(konanTargets)
+        it.parameters.propertiesProvider.set(PropertiesProvider(project))
+        it.parameters.kotlinPropertiesProvider.set(project.kotlinPropertiesProvider)
+        it.parameters.useXcodeMessageStyle.set(project.useXcodeMessageStyle)
+        it.parameters.nativeProperties.set(project.nativeProperties)
+        it.parameters.kotlinNativeCompilerConfiguration.set(kotlinNativeCompilerConfiguration)
+    }
 
-        if (toolchainEnabled.get()) {
-            kotlinNativeBundleBuildService.get().prepareKotlinNativeBundle(
-                project,
-                kotlinNativeCompilerConfiguration,
-                kotlinNativeVersion,
-                bundleDir.asFile,
-                reinstallFlag,
-                konanTargets,
-                overriddenKonanHome.orNull
-            )
+    internal abstract class NativeVersionValueSource :
+        ValueSource<String, NativeVersionValueSource.Params> {
+
+        interface Params : ValueSourceParameters {
+            val bundleDirectory: Property<String>
+            val reinstallBundle: Property<Boolean>
+            val overriddenKonanHome: Property<String>
+            val dependencyNameWithOsAndVersion: Property<String>
+            val kotlinNativeBundleBuildService: Property<KotlinNativeBundleBuildService>
+            val toolchainEnabled: Property<Boolean>
+            val objectFactory: Property<ObjectFactory>
+            val konanTargets: ListProperty<KonanTarget>
+            val propertiesProvider: Property<PropertiesProvider>//PropertiesProvider(project
+            val kotlinPropertiesProvider: Property<PropertiesProvider>//project.kotlinPropertiesProvider
+            val konanPropertiesService: Provider<KonanPropertiesBuildService>
+            val useXcodeMessageStyle: Property<Boolean>
+            val nativeProperties: Property<NativeProperties>
+            val kotlinNativeCompilerConfiguration: Property<ConfigurableFileCollection>
         }
-        kotlinNativeVersion
+
+        override fun obtain(): String {
+            val kotlinNativeVersion =
+                if (parameters.overriddenKonanHome.isPresent)
+                    parameters.overriddenKonanHome.get()
+                else
+                    parameters.dependencyNameWithOsAndVersion.get()
+            if (parameters.toolchainEnabled.get()) {
+                parameters.kotlinNativeBundleBuildService.get().prepareKotlinNativeBundle(
+                    logger,
+                    parameters.kotlinNativeCompilerConfiguration.get(),
+                    kotlinNativeVersion,
+                    File(parameters.bundleDirectory.get()),
+                    parameters.reinstallBundle.get(),
+                    parameters.konanTargets.get().toSet(),
+                    parameters.overriddenKonanHome.get(),
+                    parameters.objectFactory.get(),
+                    parameters.propertiesProvider.get(),//PropertiesProvider(project)
+                    parameters.kotlinPropertiesProvider.get(),//project.kotlinPropertiesProvider,
+                    parameters.useXcodeMessageStyle,
+                    parameters.nativeProperties.get(),
+                )
+            }
+            return kotlinNativeVersion
+        }
     }
 
     @get:Input
@@ -84,7 +129,7 @@ internal class KotlinNativeProvider(
                 if (toolchainEnabled.get() && enableDependenciesDownloading) {
                     kotlinNativeBundleBuildService.get()
                         .downloadNativeDependencies(
-                            bundleDir.asFile,
+                            File(bundleDir),
                             konanDataDir.orNull,
                             konanTargets,
                             project.logger

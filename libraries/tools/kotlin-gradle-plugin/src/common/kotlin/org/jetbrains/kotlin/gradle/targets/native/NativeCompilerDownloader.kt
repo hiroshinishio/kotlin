@@ -88,7 +88,7 @@ class NativeCompilerDownloader(
         }
 
         private fun getDependencyName(project: Project): String {
-            val dependencySuffix = NativeDistributionTypeProvider(project).getDistributionType().suffix
+            val dependencySuffix = NativeDistributionTypeProvider(PropertiesProvider(project)).getDistributionType().suffix
             return if (dependencySuffix != null) {
                 "kotlin-native-$dependencySuffix"
             } else {
@@ -281,7 +281,7 @@ internal fun Project.setupNativeCompiler(konanTarget: KonanTarget) {
         logger.info("User-provided Kotlin/Native distribution: ${nativeProperties.userProvidedNativeHome.orNull}")
     }
 
-    val distributionType = NativeDistributionTypeProvider(project).getDistributionType()
+    val distributionType = NativeDistributionTypeProvider(PropertiesProvider(project)).getDistributionType()
     if (distributionType.mustGeneratePlatformLibs) {
         PlatformLibrariesGenerator(
             project.objects,
