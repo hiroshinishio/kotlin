@@ -107,7 +107,6 @@ def construct_cmake_flags(
         '-DLLVM_INCLUDE_GO_TESTS=OFF',
         '-DLLVM_ENABLE_Z3_SOLVER=OFF',
         '-DLLVM_ENABLE_ZSTD=OFF',
-        '-DLLVM_ENABLE_ZLIB=FORCE_ON',
         '-DCOMPILER_RT_BUILD_BUILTINS=ON',
         '-DLLVM_ENABLE_THREADS=ON',
         '-DLLVM_OPTIMIZED_TABLEGEN=ON',
@@ -115,6 +114,9 @@ def construct_cmake_flags(
         '-DLLVM_BUILD_UTILS=ON',
         '-DLLVM_INSTALL_UTILS=ON'
     ]
+    if not host_is_windows(): # TODO(KT-69207): Enable for all hosts when Windows builder gets zlib.
+        cmake_args.append("-DLLVM_ENABLE_ZLIB=FORCE_ON")
+
     if not building_bootstrap:
         if distribution_components:
             cmake_args.append('-DLLVM_DISTRIBUTION_COMPONENTS=' + ';'.join(distribution_components))
