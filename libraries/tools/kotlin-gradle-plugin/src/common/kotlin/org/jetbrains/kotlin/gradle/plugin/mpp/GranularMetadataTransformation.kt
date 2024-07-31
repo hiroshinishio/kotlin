@@ -125,7 +125,6 @@ internal class GranularMetadataTransformation(
     class ProjectData(
         val path: String,
         val sourceSetMetadataOutputs: LenientFuture<Map<String, SourceSetMetadataOutputs>>,
-        val moduleId: LenientFuture<ModuleDependencyIdentifier>,
     ) {
         override fun toString(): String = "ProjectData[path='$path']"
     }
@@ -333,8 +332,7 @@ internal class GranularMetadataTransformation(
             is ModuleComponentIdentifier -> ModuleDependencyIdentifier(componentId.group, componentId.module)
             is ProjectComponentIdentifier -> {
                 if (componentId in params.build) {
-                    params.projectData[componentId.projectPath]?.moduleId?.getOrThrow()
-                        ?: error("Cant find project Module ID by ${componentId.projectPath}")
+                    ModuleDependencyIdentifier(component.moduleVersion?.group, componentId.projectName)
                 } else {
                     ModuleDependencyIdentifier(
                         component.moduleVersion?.group ?: "unspecified",
@@ -355,12 +353,10 @@ private val Project.allProjectsData: Map<String, GranularMetadataTransformation.
 
 private fun Project.collectAllProjectsData(): Map<String, GranularMetadataTransformation.ProjectData> {
     return rootProject.allprojects.associateBy { it.path }.mapValues { (path, currentProject) ->
-        val moduleId = currentProject.future { ModuleIds.idOfRootModuleSafe(currentProject) }.lenient
 
         GranularMetadataTransformation.ProjectData(
             path = path,
             sourceSetMetadataOutputs = currentProject.future { currentProject.collectSourceSetMetadataOutputs() }.lenient,
-            moduleId = moduleId
         )
     }
 }
