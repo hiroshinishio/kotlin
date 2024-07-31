@@ -27,7 +27,8 @@ import org.jetbrains.kotlin.gradle.utils.setAttribute
 
 private typealias SourceSetName = String
 
-internal val sourceSetsMetadataAttribute = Attribute.of("org.jetbrains.kotlin.kmp.internal.sourceSetsMetadata", Boolean::class.javaObjectType)
+internal val sourceSetsMetadataAttribute =
+    Attribute.of("org.jetbrains.kotlin.kmp.internal.sourceSetsMetadata", Boolean::class.javaObjectType)
 
 internal fun ProjectMetadataProvider(
     sourceSetMetadataOutputs: Map<SourceSetName, SourceSetMetadataOutputs>,
@@ -92,9 +93,7 @@ internal fun GenerateProjectStructureMetadata.addMetadataSourceSetsToOutput(proj
                 .map {
                     GenerateProjectStructureMetadata.SourceSetOutputs(
                         sourceSetName = it.defaultSourceSet.name,
-                        metadataOutput = it.compileTaskProvider.flatMap { compileTask ->
-                            (compileTask as AbstractKotlinCompileTool<*>).destinationDirectory.asFile
-                        }
+                        metadataOutput = project.provider { it.output.classesDirs.singleFile }
                     )
                 }
         generateTask.sourceSetOutputs.set(sourceSetOutputs)
