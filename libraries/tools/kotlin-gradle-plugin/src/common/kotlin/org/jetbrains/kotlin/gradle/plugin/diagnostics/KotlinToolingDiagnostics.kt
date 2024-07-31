@@ -217,7 +217,7 @@ object KotlinToolingDiagnostics {
                 Kotlin Gradle Plugin <-> Gradle compatibility issue:
                 The applied Kotlin Gradle is not compatible with the used Gradle version ($currentGradleVersion).
                 
-                Please update the Gradle version in the project to at least $minimallySupportedGradleVersion.
+                Please update the Gradle version to at least $minimallySupportedGradleVersion.
             """.trimIndent()
         )
     }
