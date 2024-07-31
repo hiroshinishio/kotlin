@@ -100,6 +100,18 @@ class NativeIncrementalCompilationIT : KGPBaseTest() {
         }
     }
 
+    @DisplayName("Custom binary option")
+    @GradleTest
+    fun customBinaryOption(gradleVersion: GradleVersion) {
+        nativeProject("native-incremental-custom-binary-option", gradleVersion, forceOutput = true) {
+            build("linkDebugExecutableHost") {
+                assertDirectoryExists(
+                    getFileCache("native-incremental-custom-binary-option", "src/hostMain/kotlin/main.kt")
+                )
+            }
+        }
+    }
+
     @DisplayName("IC works after compilation error (test 1)")
     @GradleTest
     fun compilationError1(gradleVersion: GradleVersion) {
