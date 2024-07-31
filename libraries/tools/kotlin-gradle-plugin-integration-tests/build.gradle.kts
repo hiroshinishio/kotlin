@@ -1,4 +1,5 @@
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
+import org.jetbrains.kotlin.gradle.tasks.AbstractKotlinCompile
 import java.nio.file.Paths
 
 plugins {
@@ -403,6 +404,8 @@ tasks.withType<Test> {
     systemProperty("runnerGradleVersion", gradle.gradleVersion)
     systemProperty("composeSnapshotVersion", libs.versions.compose.snapshot.version.get())
     systemProperty("composeSnapshotId", libs.versions.compose.snapshot.id.get())
+    val compileTest = kotlin.target.compilations["test"].compileTaskProvider.get() as AbstractKotlinCompile<*>
+    systemProperty("buildGradleKtsInjectionsClasspath", compileTest.destinationDirectory.get().asFile.absolutePath)
 
     val installCocoapods = project.findProperty("installCocoapods") as String?
     if (installCocoapods != null) {
