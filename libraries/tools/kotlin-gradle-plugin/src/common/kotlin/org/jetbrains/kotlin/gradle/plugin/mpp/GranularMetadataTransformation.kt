@@ -7,6 +7,7 @@ package org.jetbrains.kotlin.gradle.plugin.mpp
 
 import org.gradle.api.Project
 import org.gradle.api.artifacts.component.*
+import org.gradle.api.artifacts.result.ResolvedArtifactResult
 import org.gradle.api.artifacts.result.ResolvedComponentResult
 import org.gradle.api.artifacts.result.ResolvedDependencyResult
 import org.gradle.api.attributes.AttributeContainer
@@ -18,10 +19,10 @@ import org.jetbrains.kotlin.gradle.dsl.multiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.*
 import org.jetbrains.kotlin.gradle.plugin.PropertiesProvider.Companion.kotlinPropertiesProvider
 import org.jetbrains.kotlin.gradle.plugin.mpp.MetadataDependencyResolution.ChooseVisibleSourceSets.MetadataProvider.ArtifactMetadataProvider
+import org.jetbrains.kotlin.gradle.plugin.mpp.internal.MetadataJsonSerialisationTool
 import org.jetbrains.kotlin.gradle.plugin.mpp.internal.projectStructureMetadataResolvableConfiguration
 import org.jetbrains.kotlin.gradle.plugin.sources.internal
 import org.jetbrains.kotlin.gradle.utils.*
-import java.io.File
 import java.util.*
 
 internal sealed class MetadataDependencyResolution(
@@ -104,6 +105,7 @@ internal class GranularMetadataTransformation(
         val platformCompilationSourceSets: Set<String>,
         val projectStructureMetadataResolvableConfiguration: LazyResolvedConfiguration?,
         val objects: ObjectFactory,
+        val kotlinKmpProjectIsolationEnabled: Boolean,
     ) {
         constructor(project: Project, kotlinSourceSet: KotlinSourceSet) : this(
             build = project.currentBuild,
@@ -111,11 +113,12 @@ internal class GranularMetadataTransformation(
             resolvedMetadataConfiguration = LazyResolvedConfiguration(kotlinSourceSet.internal.resolvableMetadataConfiguration),
             sourceSetVisibilityProvider = SourceSetVisibilityProvider(project),
             projectStructureMetadataExtractorFactory = if (project.kotlinPropertiesProvider.kotlinKmpProjectIsolationEnabled) project.kotlinMppDependencyProjectStructureMetadataExtractorFactory else project.kotlinMppDependencyProjectStructureMetadataExtractorFactoryDeprecated,
-            projectData = project.allProjectsData,
+            projectData = /*if (project.kotlinPropertiesProvider.kotlinKmpProjectIsolationEnabled) emptyMap<String, ProjectData>() else */project.allProjectsData,
             platformCompilationSourceSets = project.multiplatformExtension.platformCompilationSourceSets,
             projectStructureMetadataResolvableConfiguration =
             kotlinSourceSet.internal.projectStructureMetadataResolvableConfiguration?.let { LazyResolvedConfiguration(it) },
-            objects = project.objects
+            objects = project.objects,
+            kotlinKmpProjectIsolationEnabled = project.kotlinPropertiesProvider.kotlinKmpProjectIsolationEnabled
         )
     }
 
@@ -276,15 +279,9 @@ internal class GranularMetadataTransformation(
 
         val visibleSourceSetsExcludingDependsOn = allVisibleSourceSets.filterTo(mutableSetOf()) { it !in sourceSetsVisibleInParents }
 
-        @Suppress("DEPRECATION") val metadataProvider = when (mppDependencyMetadataExtractor) {
+        val metadataProvider = when (mppDependencyMetadataExtractor) {
             is AbstractProjectMppDependencyProjectStructureMetadataExtractor -> {
-                val sourceSetMetadataOutputs = compositeMetadataArtifact.file.readLines()
-                    .map { line -> line.split(" => ") }
-                    .associate { (sourceSetName, classDir) ->
-                        sourceSetName to SourceSetMetadataOutputs(
-                            params.objects.fileCollection().from(File(classDir))
-                        )
-                    }
+                val sourceSetMetadataOutputs = extractSourceSetMetadataOutputs(compositeMetadataArtifact, mppDependencyMetadataExtractor)
                 ProjectMetadataProvider(
                     sourceSetMetadataOutputs = sourceSetMetadataOutputs
                 )
@@ -308,6 +305,23 @@ internal class GranularMetadataTransformation(
             visibleTransitiveDependencies = transitiveDependenciesToVisit,
             metadataProvider = metadataProvider
         )
+    }
+
+    private fun extractSourceSetMetadataOutputs(
+        compositeMetadataArtifact: ResolvedArtifactResult,
+        mppDependencyMetadataExtractor: AbstractProjectMppDependencyProjectStructureMetadataExtractor,
+    ): Map<String, SourceSetMetadataOutputs> {
+       return if (params.kotlinKmpProjectIsolationEnabled) {
+            val sourceSetsMetadataOutputsJson = compositeMetadataArtifact.file.readText()
+            MetadataJsonSerialisationTool.fromJson(sourceSetsMetadataOutputsJson)
+                .entries
+                .associate { (sourceSetName, classDir) ->
+                    sourceSetName to SourceSetMetadataOutputs(params.objects.fileCollection().from(classDir))
+                }
+        } else {
+            params.projectData[mppDependencyMetadataExtractor.projectPath]?.sourceSetMetadataOutputs
+                ?.getOrThrow() ?: error("Unexpected project path '${mppDependencyMetadataExtractor.projectPath}'")
+        }
     }
 
     /**

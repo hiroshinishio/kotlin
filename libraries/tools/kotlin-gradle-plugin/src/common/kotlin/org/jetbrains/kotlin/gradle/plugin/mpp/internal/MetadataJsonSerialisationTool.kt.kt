@@ -7,7 +7,6 @@ package org.jetbrains.kotlin.gradle.plugin.mpp.internal
 
 import com.google.gson.*
 import com.google.gson.reflect.TypeToken
-import org.gradle.api.file.FileCollection
 import java.io.File
 import java.lang.reflect.Type
 
