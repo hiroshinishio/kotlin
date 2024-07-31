@@ -15,3 +15,7 @@ internal actual fun secureRandomUuid(): Uuid {
     val uuidString = crypto.randomUUID()
     return Uuid.parse(uuidString)
 }
+
+@ExperimentalUuidApi
+internal actual fun serializedUuid(uuid: Uuid): Any =
+    throw UnsupportedOperationException("Serialization is supported only in Kotlin/JVM")
