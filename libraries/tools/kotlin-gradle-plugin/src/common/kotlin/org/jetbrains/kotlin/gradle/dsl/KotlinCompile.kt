@@ -30,13 +30,13 @@ internal interface KotlinNativeCompileTask : KotlinCompile<KotlinCommonOptions>,
 interface KotlinCommonCompile : KotlinCompile<KotlinMultiplatformCommonOptions>,
     KotlinCompilationTask<KotlinMultiplatformCommonCompilerOptions>
 
-@Suppress("DEPRECATION")
+@Suppress("DEPRECATION_ERROR")
 @Deprecated(
     "The Kotlin/JS dead code elimination tool is obsolete",
+    level = DeprecationLevel.ERROR,
 )
 interface KotlinJsDce : Task, KotlinToolTask<KotlinJsDceCompilerToolOptions> {
 
-    @Suppress("DEPRECATION")
     @Deprecated(KOTLIN_OPTIONS_AS_TOOLS_DEPRECATION_MESSAGE)
     @get:Internal
     val dceOptions: KotlinJsDceOptions

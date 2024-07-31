@@ -99,7 +99,7 @@ abstract class KotlinBrowserJsIr @Inject constructor(target: KotlinJsIrTarget) :
         "dceTask configuration is useless with IR compiler. Use @JsExport on declarations instead.",
     )
     @ExperimentalDceDsl
-    override fun dceTask(body: Action<@Suppress("DEPRECATION") org.jetbrains.kotlin.gradle.dsl.KotlinJsDce>) {
+    override fun dceTask(body: Action<@Suppress("DEPRECATION_ERROR") org.jetbrains.kotlin.gradle.dsl.KotlinJsDce>) {
         project.logger.warn("dceTask configuration is useless with IR compiler. Use @JsExport on declarations instead.")
     }
 

@@ -107,9 +107,10 @@ interface KotlinJsBrowserDsl : KotlinJsSubTargetDsl {
 
     @Deprecated(
         "dceTask configuration is useless with IR compiler. Use @JsExport on declarations instead.",
+        level = DeprecationLevel.ERROR,
     )
     @ExperimentalDceDsl
-    fun dceTask(body: Action<@Suppress("DEPRECATION") org.jetbrains.kotlin.gradle.dsl.KotlinJsDce>)
+    fun dceTask(body: Action<@Suppress("DEPRECATION_ERROR") org.jetbrains.kotlin.gradle.dsl.KotlinJsDce>)
 }
 
 interface KotlinJsNodeDsl : KotlinJsSubTargetDsl {

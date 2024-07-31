@@ -10,12 +10,13 @@ package org.jetbrains.kotlin.gradle.dsl
  */
 @Deprecated(
     "The Kotlin/JS dead code elimination tool is obsolete",
+    level = DeprecationLevel.ERROR,
 )
 interface KotlinJsDceOptions : @Suppress("DEPRECATION") KotlinCommonToolOptions {
     /**
      * @suppress
      */
-    override val options: @Suppress("DEPRECATION") KotlinJsDceCompilerToolOptions
+    override val options: @Suppress("DEPRECATION_ERROR") KotlinJsDceCompilerToolOptions
 
     /**
      * Development mode: don't strip out any code, just copy dependencies.
