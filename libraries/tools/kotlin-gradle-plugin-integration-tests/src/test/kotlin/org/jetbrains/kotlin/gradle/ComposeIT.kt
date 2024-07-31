@@ -332,6 +332,7 @@ class ComposeIT : KGPBaseTest() {
 
     @DisplayName("Run Compose compiler with the latest runtime")
     @GradleAndroidTest
+    @AndroidTestVersions(minVersion = TestVersions.AGP.MAX_SUPPORTED)
     @OtherGradlePluginTests
     @TestMetadata("AndroidSimpleApp")
     fun testComposePluginWithRuntimeLatest(
@@ -339,8 +340,6 @@ class ComposeIT : KGPBaseTest() {
         agpVersion: String,
         providedJdk: JdkVersions.ProvidedJdk
     ) {
-        assumeTrue(agpVersion == TestVersions.AGP.MAX_SUPPORTED) // Only test with the latest AGP
-
         val composeSnapshotId = System.getProperty("composeSnapshotId")
         val composeSnapshotVersion = System.getProperty("composeSnapshotVersion")
         project(
