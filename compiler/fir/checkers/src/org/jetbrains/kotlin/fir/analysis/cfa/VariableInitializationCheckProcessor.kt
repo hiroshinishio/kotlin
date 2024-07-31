@@ -199,7 +199,7 @@ abstract class VariableInitializationCheckProcessor {
 
     private fun FirVariableSymbol<*>.isInitializedAt(node: CFGNode<*>, data: VariableInitializationInfoData): Boolean {
         return data.getValue(node).all { (key, value) ->
-            (key == CapturedByValue && isVar) || value[this]?.isDefinitelyVisited() == true
+            (key == CapturedByValue && !isCapturedByValue) || value[this]?.isDefinitelyVisited() == true
         }
     }
 
@@ -321,6 +321,9 @@ private val FirVariableSymbol<*>.isLocal: Boolean
         is FirPropertySymbol -> isLocal
         else -> false
     }
+
+val FirVariableSymbol<*>.isCapturedByValue: Boolean
+    get() = isVal && isLocal
 
 fun buildRecursionErrorMessage(
     problemNode: CFGNode<*>,

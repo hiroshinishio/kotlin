@@ -8,6 +8,7 @@ package org.jetbrains.kotlin.fir.analysis.cfa.util
 import org.jetbrains.kotlin.contracts.description.MarkedEventOccurrencesRange
 import org.jetbrains.kotlin.contracts.description.canBeRevisited
 import org.jetbrains.kotlin.fir.FirElement
+import org.jetbrains.kotlin.fir.analysis.cfa.isCapturedByValue
 import org.jetbrains.kotlin.fir.declarations.*
 import org.jetbrains.kotlin.fir.expressions.*
 import org.jetbrains.kotlin.fir.references.toResolvedPropertySymbol
@@ -93,8 +94,8 @@ class PropertyInitializationInfoCollector(
     ): PathAwarePropertyInitializationInfo {
         val result = super.visitEdge(from, to, metadata, data)
         if (metadata.label == CapturedByValue) {
-            // Remove var properties from data as they are not captured by value.
-            val invalidProperties = data.flatMapTo(hashSetOf()) { it.value.keys }.filter { it.isVar }
+            // Remove properties from data that are not captured by value.
+            val invalidProperties = data.flatMapTo(hashSetOf()) { it.value.keys }.filter { !it.isCapturedByValue }
             return invalidProperties.fold(result) { filteredData, symbol ->
                 filteredData.removeRange(symbol)
             }

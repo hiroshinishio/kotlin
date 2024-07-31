@@ -113,3 +113,81 @@ fun mutableInitBeforeCaptureLater() {
         x = { x.length },
     )
 }
+
+class Inline {
+    val immutableBefore: String
+    val immutableAfter: String
+    var mutableBefore: String
+    var mutableAfter: String
+
+    init {
+        invokeInline(
+            x = { immutableBefore.length },
+            y = if (true) { immutableBefore = ""; "" } else { immutableBefore = ""; "" },
+        )
+        invokeInline(
+            y = if (true) { immutableAfter = ""; "" } else { immutableAfter = ""; "" },
+            x = { immutableAfter.length },
+        )
+        invokeInline(
+            x = { mutableBefore.length },
+            y = if (true) { mutableBefore = ""; "" } else { mutableBefore = ""; "" },
+        )
+        invokeInline(
+            y = if (true) { mutableAfter = ""; "" } else { mutableAfter = ""; "" },
+            x = { mutableAfter.length },
+        )
+    }
+}
+
+class InPlace {
+    val immutableBefore: String
+    val immutableAfter: String
+    var mutableBefore: String
+    var mutableAfter: String
+
+    init {
+        invokeInPlace(
+            x = { immutableBefore.length },
+            y = if (true) { immutableBefore = ""; "" } else { immutableBefore = ""; "" },
+        )
+        invokeInPlace(
+            y = if (true) { immutableAfter = ""; "" } else { immutableAfter = ""; "" },
+            x = { immutableAfter.length },
+        )
+        invokeInPlace(
+            x = { mutableBefore.length },
+            y = if (true) { mutableBefore = ""; "" } else { mutableBefore = ""; "" },
+        )
+        invokeInPlace(
+            y = if (true) { mutableAfter = ""; "" } else { mutableAfter = ""; "" },
+            x = { mutableAfter.length },
+        )
+    }
+}
+
+class Later {
+    val immutableBefore: String
+    val immutableAfter: String
+    var mutableBefore: String
+    var mutableAfter: String
+
+    init {
+        invokeLater(
+            x = { <!UNINITIALIZED_VARIABLE!>immutableBefore<!>.length },
+            y = if (true) { immutableBefore = ""; "" } else { immutableBefore = ""; "" },
+        )
+        invokeLater(
+            y = if (true) { immutableAfter = ""; "" } else { immutableAfter = ""; "" },
+            x = { immutableAfter.length },
+        )
+        invokeLater(
+            x = { <!UNINITIALIZED_VARIABLE!>mutableBefore<!>.length },
+            y = if (true) { mutableBefore = ""; "" } else { mutableBefore = ""; "" },
+        )
+        invokeLater(
+            y = if (true) { mutableAfter = ""; "" } else { mutableAfter = ""; "" },
+            x = { mutableAfter.length },
+        )
+    }
+}
