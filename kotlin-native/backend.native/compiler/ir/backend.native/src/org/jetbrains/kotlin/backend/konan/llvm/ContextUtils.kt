@@ -411,49 +411,51 @@ internal class CodegenLlvmHelpers(private val generationState: NativeGenerationS
         LLVMSetTarget(module, runtime.target)
     }
 
-    private fun importRtFunction(name: String, returnsObjectType: Boolean = false) = importFunction(name, runtime.llvmModule, returnsObjectType)
+    private fun importRtFunction(name: String, returnsObjectType: Boolean) = importFunction(name, runtime.llvmModule, returnsObjectType)
 
     val allocInstanceFunction = importRtFunction("AllocInstance", true)
     val allocArrayFunction = importRtFunction("AllocArrayInstance", true)
-    val initAndRegisterGlobalFunction = importRtFunction("InitAndRegisterGlobal")
-    val updateHeapRefFunction = importRtFunction("UpdateHeapRef")
-    val updateStackRefFunction = importRtFunction("UpdateStackRef")
-    val updateReturnRefFunction = importRtFunction("UpdateReturnRef")
-    val zeroHeapRefFunction = importRtFunction("ZeroHeapRef")
-    val zeroArrayRefsFunction = importRtFunction("ZeroArrayRefs")
-    val enterFrameFunction = importRtFunction("EnterFrame")
-    val leaveFrameFunction = importRtFunction("LeaveFrame")
-    val setCurrentFrameFunction = importRtFunction("SetCurrentFrame")
-    val checkCurrentFrameFunction = importRtFunction("CheckCurrentFrame")
-    val lookupInterfaceTableRecord = importRtFunction("LookupInterfaceTableRecord")
-    val isSubtypeFunction = importRtFunction("IsSubtype")
-    val isSubclassFastFunction = importRtFunction("IsSubclassFast")
-    val throwExceptionFunction = importRtFunction("ThrowException")
-    val appendToInitalizersTail = importRtFunction("AppendToInitializersTail")
-    val callInitGlobalPossiblyLock = importRtFunction("CallInitGlobalPossiblyLock")
-    val callInitThreadLocal = importRtFunction("CallInitThreadLocal")
-    val addTLSRecord = importRtFunction("AddTLSRecord")
-    val lookupTLS = importRtFunction("LookupTLS")
-    val initRuntimeIfNeeded = importRtFunction("Kotlin_initRuntimeIfNeeded")
+    val initAndRegisterGlobalFunction = importRtFunction("InitAndRegisterGlobal", false)
+    val updateHeapRefFunction = importRtFunction("UpdateHeapRef", false)
+    val updateStackRefFunction = importRtFunction("UpdateStackRef", false)
+    val updateReturnRefFunction = importRtFunction("UpdateReturnRef", false)
+    val zeroHeapRefFunction = importRtFunction("ZeroHeapRef", false)
+    val zeroArrayRefsFunction = importRtFunction("ZeroArrayRefs", false)
+    val enterFrameFunction = importRtFunction("EnterFrame", false)
+    val leaveFrameFunction = importRtFunction("LeaveFrame", false)
+    val setCurrentFrameFunction = importRtFunction("SetCurrentFrame", false)
+    val checkCurrentFrameFunction = importRtFunction("CheckCurrentFrame", false)
+    val lookupInterfaceTableRecord = importRtFunction("LookupInterfaceTableRecord", false)
+    val isSubtypeFunction = importRtFunction("IsSubtype", false)
+    val isSubclassFastFunction = importRtFunction("IsSubclassFast", false)
+    val throwExceptionFunction = importRtFunction("ThrowException", false)
+    val appendToInitalizersTail = importRtFunction("AppendToInitializersTail", false)
+    val callInitGlobalPossiblyLock = importRtFunction("CallInitGlobalPossiblyLock", false)
+    val callInitThreadLocal = importRtFunction("CallInitThreadLocal", false)
+    val addTLSRecord = importRtFunction("AddTLSRecord", false)
+    val lookupTLS = importRtFunction("LookupTLS", false)
+    val initRuntimeIfNeeded = importRtFunction("Kotlin_initRuntimeIfNeeded", false)
     val Kotlin_getExceptionObject = importRtFunction("Kotlin_getExceptionObject", true)
 
-    val kRefSharedHolderInitLocal = importRtFunction("KRefSharedHolder_initLocal")
-    val kRefSharedHolderInit = importRtFunction("KRefSharedHolder_init")
-    val kRefSharedHolderDispose = importRtFunction("KRefSharedHolder_dispose")
-    val kRefSharedHolderRef = importRtFunction("KRefSharedHolder_ref")
+    val kRefSharedHolderInitLocal = importRtFunction("KRefSharedHolder_initLocal", false)
+    val kRefSharedHolderInit = importRtFunction("KRefSharedHolder_init", false)
+    val kRefSharedHolderDispose = importRtFunction("KRefSharedHolder_dispose", false)
+    val kRefSharedHolderRef = importRtFunction("KRefSharedHolder_ref", false)
 
-    val createKotlinObjCClass by lazy { importRtFunction("CreateKotlinObjCClass") }
-    val getObjCKotlinTypeInfo by lazy { importRtFunction("GetObjCKotlinTypeInfo") }
-    val missingInitImp by lazy { importRtFunction("MissingInitImp") }
+    val createKotlinObjCClass by lazy { importRtFunction("CreateKotlinObjCClass", false) }
+    val getObjCKotlinTypeInfo by lazy { importRtFunction("GetObjCKotlinTypeInfo", false) }
+    val missingInitImp by lazy { importRtFunction("MissingInitImp", false) }
 
     val Kotlin_mm_switchThreadStateNative by lazy {
         importRtFunction(
-                if (generationState.shouldOptimize()) "Kotlin_mm_switchThreadStateNative" else "Kotlin_mm_switchThreadStateNative_debug"
+                if (generationState.shouldOptimize()) "Kotlin_mm_switchThreadStateNative" else "Kotlin_mm_switchThreadStateNative_debug",
+                false
         )
     }
     val Kotlin_mm_switchThreadStateRunnable by lazy {
         importRtFunction(
-                if (generationState.shouldOptimize()) "Kotlin_mm_switchThreadStateRunnable" else "Kotlin_mm_switchThreadStateRunnable_debug"
+                if (generationState.shouldOptimize()) "Kotlin_mm_switchThreadStateRunnable" else "Kotlin_mm_switchThreadStateRunnable_debug",
+                false
         )
     }
 
@@ -509,7 +511,7 @@ internal class CodegenLlvmHelpers(private val generationState: NativeGenerationS
                 thisRef: CodegenLlvmHelpers, property: KProperty<*>
         ) = object : ReadOnlyProperty<CodegenLlvmHelpers, LlvmCallable> {
 
-            val value: LlvmCallable by lazy { thisRef.importRtFunction(property.name) }
+            val value: LlvmCallable by lazy { thisRef.importRtFunction(property.name, false) }
 
             override fun getValue(thisRef: CodegenLlvmHelpers, property: KProperty<*>): LlvmCallable = value
         }
@@ -590,27 +592,27 @@ internal class CodegenLlvmHelpers(private val generationState: NativeGenerationS
 
     val cxxStdTerminate = externalNativeRuntimeFunction(
             "_ZSt9terminatev", // mangled C++ 'std::terminate'
-            returnType = LlvmRetType(voidType),
+            returnType = LlvmRetType(voidType, isObjectType = false),
             functionAttributes = listOf(LlvmFunctionAttribute.NoUnwind)
     )
 
     val gxxPersonalityFunction = externalNativeRuntimeFunction(
             personalityFunctionName,
-            returnType = LlvmRetType(int32Type),
+            returnType = LlvmRetType(int32Type, isObjectType = false),
             functionAttributes = listOf(LlvmFunctionAttribute.NoUnwind),
             isVararg = true
     )
 
     val cxaBeginCatchFunction = externalNativeRuntimeFunction(
             "__cxa_begin_catch",
-            returnType = LlvmRetType(int8PtrType),
+            returnType = LlvmRetType(int8PtrType, isObjectType = false),
             functionAttributes = listOf(LlvmFunctionAttribute.NoUnwind),
             parameterTypes = listOf(LlvmParamType(int8PtrType))
     )
 
     val cxaEndCatchFunction = externalNativeRuntimeFunction(
             "__cxa_end_catch",
-            returnType = LlvmRetType(voidType),
+            returnType = LlvmRetType(voidType, isObjectType = false),
             functionAttributes = listOf(LlvmFunctionAttribute.NoUnwind)
     )
 
