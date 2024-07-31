@@ -50,7 +50,7 @@ constructor(
     /**
      * The directory that contains the API declarations.
      *
-     * Defaults to [bcv.BCVCompatPlugin.API_DIR].
+     * Defaults to [BCVCompatPlugin.API_DIR].
      */
     abstract val outputApiDir: DirectoryProperty
 
