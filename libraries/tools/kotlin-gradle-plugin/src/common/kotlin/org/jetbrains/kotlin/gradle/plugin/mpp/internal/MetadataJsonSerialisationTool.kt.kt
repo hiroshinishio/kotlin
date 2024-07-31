@@ -10,6 +10,9 @@ import com.google.gson.reflect.TypeToken
 import java.io.File
 import java.lang.reflect.Type
 
+/**
+ * A utility class for serializing and deserializing metadata outputs by source set map to/from JSON.
+ */
 internal object MetadataJsonSerialisationTool {
     private val gson: Gson by lazy {
         GsonBuilder()
@@ -18,8 +21,22 @@ internal object MetadataJsonSerialisationTool {
             .create()
     }
 
+
+    /**
+     * Converts a map of metadata outputs by source set names into a JSON string representation.
+     *
+     * @param metadataOutputsBySourceSet The map of metadata outputs where the key is the source set name
+     *                                   and the value is the corresponding metadata output klib dir.
+     * @return The JSON string representation of the metadata outputs map.
+     */
     internal fun toJson(metadataOutputsBySourceSet: Map<String, File>): String = gson.toJson(metadataOutputsBySourceSet)
 
+    /**
+     * Converts a JSON string into a map of metadata outputs by source set names
+     *
+     * @param jsonString The JSON string to convert.
+     * @return A map of metadata outputs by source set names.
+     */
     internal fun fromJson(jsonString: String): Map<String, File?> {
         val listType = object : TypeToken<Map<String, File?>>() {}.type
         return gson.fromJson(jsonString, listType)
