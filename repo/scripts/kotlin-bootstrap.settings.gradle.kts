@@ -299,7 +299,8 @@ when {
     }
     else -> {
         val bootstrapVersion = defaultBootstrapVersion.get()
-        val bootstrapRepo = "https://maven.pkg.jetbrains.space/kotlin/p/kotlin/bootstrap"
+//        val bootstrapRepo = "https://maven.pkg.jetbrains.space/kotlin/p/kotlin/bootstrap"
+        val bootstrapRepo = "https://maven.pkg.jetbrains.space/kotlin/p/kotlin/dev"
 
         applyBootstrapConfiguration(
             bootstrapVersion,

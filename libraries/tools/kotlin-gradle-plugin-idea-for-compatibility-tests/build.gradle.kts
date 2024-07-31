@@ -18,6 +18,7 @@ repositories {
     }
 
     maven(url = "https://maven.pkg.jetbrains.space/kotlin/p/kotlin/bootstrap")
+    maven(url = "https://maven.pkg.jetbrains.space/kotlin/p/kotlin/dev")
     maven(url = "https://maven.pkg.jetbrains.space/kotlin/p/kotlin/kotlin-ide-plugin-dependencies")
 }
 
