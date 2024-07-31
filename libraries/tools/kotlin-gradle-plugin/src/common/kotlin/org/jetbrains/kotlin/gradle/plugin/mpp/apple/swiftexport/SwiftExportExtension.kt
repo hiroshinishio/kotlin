@@ -91,15 +91,15 @@ abstract class SwiftExportExtension @Inject constructor(
         }
 
         val dependencyId = dependencyProvider.map { dep ->
-            val moduleGroupProvider = providerFactory.provider { dep.group ?: "unspecified" }
-            val moduleNameProvider = providerFactory.provider { dep.name }
-            val moduleVersionProvider = providerFactory.provider { dep.version ?: "unspecified" }
+            val moduleGroup = dep.group
+            val moduleName = dep.name
+            val moduleVersion = dep.version
 
-            getCoordinatesFromGroupNameAndVersion(moduleGroupProvider, moduleNameProvider, moduleVersionProvider)
+            getCoordinatesFromGroupNameAndVersion(moduleGroup, moduleName, moduleVersion)
         }
 
         addToExportedModules(
-            objectFactory.moduleExport(dependencyId.get(), configure)
+            objectFactory.ModuleExport(dependencyId, configure)
         )
     }
 
@@ -143,8 +143,10 @@ abstract class SwiftExportExtension @Inject constructor(
 }
 
 private abstract class ModuleExport @Inject constructor(
-    @get:Internal override val moduleVersion: ModuleVersionIdentifier,
+    moduleVersionProvider: Provider<ModuleVersionIdentifier>,
 ) : SwiftExportedModuleVersionMetadata, Named {
+    @get:Internal
+    override val moduleVersion: ModuleVersionIdentifier by moduleVersionProvider
 
     @Internal
     override fun getName(): String = moduleVersion.let {
@@ -152,8 +154,8 @@ private abstract class ModuleExport @Inject constructor(
     }
 }
 
-private fun ObjectFactory.moduleExport(
-    dependencyId: ModuleVersionIdentifier,
+private fun ObjectFactory.ModuleExport(
+    dependencyId: Provider<ModuleVersionIdentifier>,
     configure: SwiftExportedModuleMetadata.() -> Unit = {},
 ): ModuleExport {
     return newInstance(ModuleExport::class.java, dependencyId).also {

@@ -9,13 +9,11 @@ import org.gradle.api.Project
 import org.gradle.api.artifacts.*
 import org.gradle.api.component.ComponentWithCoordinates
 import org.gradle.api.component.ComponentWithVariants
-import org.gradle.api.provider.Provider
 import org.gradle.api.publish.maven.MavenPublication
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
 import org.jetbrains.kotlin.gradle.plugin.KotlinTarget
 import org.jetbrains.kotlin.gradle.plugin.KotlinTargetComponent
 import org.jetbrains.kotlin.gradle.utils.dashSeparatedName
-import org.jetbrains.kotlin.gradle.utils.getValue
 import org.jetbrains.kotlin.gradle.utils.lowerCamelCaseName
 import org.jetbrains.kotlin.util.capitalizeDecapitalize.toLowerCaseAsciiOnly
 
@@ -26,24 +24,11 @@ internal interface KotlinTargetComponentWithPublication : KotlinTargetComponent 
 }
 
 internal fun getCoordinatesFromGroupNameAndVersion(
-    moduleGroupProvider: Provider<String>,
-    moduleNameProvider: Provider<String>,
-    moduleVersionProvider: Provider<String>,
+    moduleGroup: String?,
+    moduleName: String,
+    moduleVersion: String?,
 ): ModuleVersionIdentifier {
-    return object : ModuleVersionIdentifier {
-        private val moduleName: String by moduleNameProvider
-        private val moduleGroup: String by moduleGroupProvider
-        private val moduleVersion: String by moduleVersionProvider
-
-        override fun getGroup() = moduleGroup
-        override fun getName() = moduleName
-        override fun getVersion() = moduleVersion
-
-        override fun getModule(): ModuleIdentifier = object : ModuleIdentifier {
-            override fun getGroup(): String = moduleGroup
-            override fun getName(): String = moduleName
-        }
-    }
+    return ModuleCoordinates(moduleGroup, moduleName, moduleVersion)
 }
 
 internal fun getCoordinatesFromPublicationDelegateAndProject(
@@ -51,10 +36,10 @@ internal fun getCoordinatesFromPublicationDelegateAndProject(
     project: Project,
     target: KotlinTarget?,
 ): ModuleVersionIdentifier {
-    val moduleNameProvider = project.provider { publication?.artifactId ?: dashSeparatedName(project.name, target?.name?.toLowerCase()) }
-    val moduleGroupProvider = project.provider { publication?.groupId ?: project.group.toString() }
-    val moduleVersionProvider = project.provider { publication?.version ?: project.version.toString() }
-    return getCoordinatesFromGroupNameAndVersion(moduleGroupProvider, moduleNameProvider, moduleVersionProvider)
+    val moduleName = publication?.artifactId ?: dashSeparatedName(project.name, target?.name?.toLowerCase())
+    val moduleGroup = publication?.groupId ?: project.group.toString()
+    val moduleVersion = publication?.version ?: project.version.toString()
+    return getCoordinatesFromGroupNameAndVersion(moduleGroup, moduleName, moduleVersion)
 }
 
 private interface KotlinTargetComponentWithCoordinatesAndPublication :
