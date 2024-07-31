@@ -27,13 +27,12 @@ import org.jetbrains.kotlin.fir.references.*
 import org.jetbrains.kotlin.fir.resolve.diagnostics.ConeDiagnosticWithCandidates
 import org.jetbrains.kotlin.fir.resolve.diagnostics.ConeDiagnosticWithSymbol
 import org.jetbrains.kotlin.fir.resolve.diagnostics.ConeHiddenCandidateError
+import org.jetbrains.kotlin.fir.resolve.toClassSymbol
 import org.jetbrains.kotlin.fir.scopes.getDeclaredConstructors
 import org.jetbrains.kotlin.fir.scopes.unsubstitutedScope
 import org.jetbrains.kotlin.fir.symbols.FirBasedSymbol
 import org.jetbrains.kotlin.fir.symbols.impl.FirConstructorSymbol
 import org.jetbrains.kotlin.fir.symbols.impl.FirNamedFunctionSymbol
-import org.jetbrains.kotlin.fir.resolve.toClassSymbol
-import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.name.JvmStandardClassIds
 import org.jetbrains.kotlin.psi.KtCallElement
 import org.jetbrains.kotlin.util.OperatorNameConventions
@@ -80,7 +79,7 @@ internal fun ConeDiagnostic.getCandidateSymbols(): Collection<FirBasedSymbol<*>>
 internal fun FirAnnotation.toKaAnnotation(
     builder: KaSymbolByFirBuilder,
     index: Int,
-    argumentsFactory: (ClassId?) -> List<KaNamedAnnotationValue>
+    argumentsFactory: (FirAnnotationCall) -> List<KaNamedAnnotationValue>
 ): KaAnnotation {
     val constructorSymbol = findAnnotationConstructor(this, builder.rootSession)
         ?.let(builder.functionBuilder::buildConstructorSymbol)
@@ -92,7 +91,7 @@ internal fun FirAnnotation.toKaAnnotation(
         psi = psi as? KtCallElement,
         useSiteTarget = useSiteTarget,
         hasArguments = this is FirAnnotationCall && this.arguments.isNotEmpty(),
-        lazyArguments = lazy { argumentsFactory(classId) },
+        lazyArguments = if (this is FirAnnotationCall) lazy { argumentsFactory(this) } else lazyOf(emptyList()),
         index = index,
         constructorSymbol = constructorSymbol,
         token = builder.token,
