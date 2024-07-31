@@ -80,6 +80,13 @@ fun box(): String {
     if (builder(4, true, 1) { suspendWithException() } != "Exception: OK") return "fail 7"
     if (builder(5, true, 1) { suspend{}(); suspendWithException() } != "Exception: OK") return "fail 71"
 
+    // org.jetbrains.kotlin.js.test.ir.IrJsCodegenBoxTestGenerated.Coroutines.IntrinsicSemantics#testStartCoroutineUninterceptedOrReturnInterception
+    // org.jetbrains.kotlin.js.test.fir.FirJsCodegenBoxTestGenerated.Coroutines.IntrinsicSemantics#testStartCoroutineUninterceptedOrReturnInterception
+
+    // testNum: Int, shouldSuspend: Boolean, expectedCount: Int
+    // "fail 0 $testNum $counter != $expectedCount"
+    // fail 0 6 0 != 1
+    // testNum = 6, counter = 0, expectedCount = 1
     if (builder(6, true, 1, ::suspendHere) != "OK") return "fail 8"
     if (builder(7, true, 1, ::suspendWithException) != "Exception: OK") return "fail 9"
 

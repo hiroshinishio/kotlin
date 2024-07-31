@@ -8,3 +8,6 @@ public open class AllBoundsInWhen {
         throw UnsupportedOperationException()
     }
 }
+
+// org.jetbrains.kotlin.js.test.fir.FirLoadK2CompiledJsKotlinTestGenerated.CompiledKotlin.FromLoadJava.KotlinSignature#testAllBoundsInWhen
+// ambiguity betweeen kotlin.Serializable, kotlin.io.Serializable
