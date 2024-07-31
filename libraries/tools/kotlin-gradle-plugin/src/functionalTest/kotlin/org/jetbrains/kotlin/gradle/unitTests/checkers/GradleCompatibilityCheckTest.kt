@@ -24,7 +24,7 @@ class GradleCompatibilityCheckTest {
 
     private val unsupportedGradleVersion = FixedAndroidGradlePluginVersionProvider("7.5.1")
     private val supportedGradleVersion = FixedAndroidGradlePluginVersionProvider(
-       GradleCompatibilityCheck.minSupportedGradleVersion.baseVersion.version
+        GradleCompatibilityCheck.minSupportedGradleVersionString
     )
 
     @Test

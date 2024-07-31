@@ -12,7 +12,9 @@ import org.jetbrains.kotlin.gradle.plugin.diagnostics.reportDiagnosticOncePerBui
 
 
 internal object GradleCompatibilityCheck {
-    internal val minSupportedGradleVersion = GradleVersion.version("7.6.3")
+    internal const val minSupportedGradleVersionString = "7.6.3"
+
+    private val minSupportedGradleVersion = GradleVersion.version(minSupportedGradleVersionString)
 
     fun Project.runGradleCompatibilityCheck(
         gradleVersionProvider: CurrentGradleVersionProvider = DefaultCurrentGradleVersionProvider
