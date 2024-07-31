@@ -7,6 +7,7 @@ package org.jetbrains.kotlin.gradle.targets.native.toolchain
 
 import org.gradle.api.Project
 import org.gradle.api.file.ConfigurableFileCollection
+import org.gradle.api.logging.Logger
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.*
 import org.gradle.api.tasks.Input
@@ -18,7 +19,6 @@ import org.jetbrains.kotlin.gradle.plugin.KOTLIN_NATIVE_BUNDLE_CONFIGURATION_NAM
 import org.jetbrains.kotlin.gradle.plugin.PropertiesProvider
 import org.jetbrains.kotlin.gradle.plugin.PropertiesProvider.Companion.kotlinPropertiesProvider
 import org.jetbrains.kotlin.gradle.plugin.mpp.apple.useXcodeMessageStyle
-import org.jetbrains.kotlin.gradle.targets.native.KonanPropertiesBuildService
 import org.jetbrains.kotlin.gradle.utils.NativeCompilerDownloader
 import org.jetbrains.kotlin.gradle.utils.property
 import org.jetbrains.kotlin.konan.target.KonanTarget
@@ -67,14 +67,23 @@ internal class KotlinNativeProvider(
         it.parameters.dependencyNameWithOsAndVersion.set(NativeCompilerDownloader.getDependencyNameWithOsAndVersion(project))
         it.parameters.kotlinNativeBundleBuildService.set(kotlinNativeBundleBuildService)
         it.parameters.toolchainEnabled.set(toolchainEnabled)
-        it.parameters.objectFactory.set(project.objects)
-        it.parameters.konanTargets.set(konanTargets)
-        it.parameters.propertiesProvider.set(PropertiesProvider(project))
-        it.parameters.kotlinPropertiesProvider.set(project.kotlinPropertiesProvider)
-        it.parameters.useXcodeMessageStyle.set(project.useXcodeMessageStyle)
-        it.parameters.nativeProperties.set(project.nativeProperties)
-        it.parameters.kotlinNativeCompilerConfiguration.set(kotlinNativeCompilerConfiguration)
+        it.parameters.kotlinNativeCompilerConfiguration.set(project.provider { kotlinNativeCompilerConfiguration} )
+//        it.parameters.logger.set(project.logger)
     }
+
+    @get:Internal
+    internal val kotlinNativeLibraries = kotlinNativeBundleBuildService.map {
+            it.setupKotlinNativePlatformLibraries(
+                project.objects,
+                konanTargets,
+                PropertiesProvider(project),
+                project.kotlinPropertiesProvider,
+                project.useXcodeMessageStyle,
+                project.nativeProperties,
+            )
+        }
+
+
 
     internal abstract class NativeVersionValueSource :
         ValueSource<String, NativeVersionValueSource.Params> {
@@ -86,14 +95,8 @@ internal class KotlinNativeProvider(
             val dependencyNameWithOsAndVersion: Property<String>
             val kotlinNativeBundleBuildService: Property<KotlinNativeBundleBuildService>
             val toolchainEnabled: Property<Boolean>
-            val objectFactory: Property<ObjectFactory>
-            val konanTargets: ListProperty<KonanTarget>
-            val propertiesProvider: Property<PropertiesProvider>//PropertiesProvider(project
-            val kotlinPropertiesProvider: Property<PropertiesProvider>//project.kotlinPropertiesProvider
-            val konanPropertiesService: Provider<KonanPropertiesBuildService>
-            val useXcodeMessageStyle: Property<Boolean>
-            val nativeProperties: Property<NativeProperties>
             val kotlinNativeCompilerConfiguration: Property<ConfigurableFileCollection>
+//            val logger: Property<Logger>
         }
 
         override fun obtain(): String {
@@ -104,18 +107,12 @@ internal class KotlinNativeProvider(
                     parameters.dependencyNameWithOsAndVersion.get()
             if (parameters.toolchainEnabled.get()) {
                 parameters.kotlinNativeBundleBuildService.get().prepareKotlinNativeBundle(
-                    logger,
+//                    parameters.logger.get(),
                     parameters.kotlinNativeCompilerConfiguration.get(),
                     kotlinNativeVersion,
                     File(parameters.bundleDirectory.get()),
                     parameters.reinstallBundle.get(),
-                    parameters.konanTargets.get().toSet(),
-                    parameters.overriddenKonanHome.get(),
-                    parameters.objectFactory.get(),
-                    parameters.propertiesProvider.get(),//PropertiesProvider(project)
-                    parameters.kotlinPropertiesProvider.get(),//project.kotlinPropertiesProvider,
-                    parameters.useXcodeMessageStyle,
-                    parameters.nativeProperties.get(),
+                    parameters.overriddenKonanHome.orNull,
                 )
             }
             return kotlinNativeVersion

@@ -115,50 +115,36 @@ internal abstract class KotlinNativeBundleBuildService : BuildService<KotlinNati
      * @return kotlin native version if toolchain was used, path to konan home if konan home was used
      */
     internal fun prepareKotlinNativeBundle(
-        projectLogger: Logger,
+//        projectLogger: Logger,
         kotlinNativeBundleConfiguration: ConfigurableFileCollection,
         kotlinNativeVersion: String,
         bundleDir: File,
         reinstallFlag: Boolean,
-        konanTargets: Set<KonanTarget>,
         overriddenKonanHome: String?,
-        objectFactory: ObjectFactory,
-        propertiesProvider: PropertiesProvider,//PropertiesProvider(project)
-        kotlinPropertiesProvider: PropertiesProvider,//project.kotlinPropertiesProvider,
-        useXcodeMessageStyle: Provider<Boolean>,
-        nativeProperties: NativeProperties,
     ) {
         if (overriddenKonanHome != null) {
-            projectLogger.info("A user-provided Kotlin/Native distribution configured: ${overriddenKonanHome}. Disabling Kotlin Native Toolchain auto-provisioning.")
+//            projectLogger.info("A user-provided Kotlin/Native distribution configured: ${overriddenKonanHome}. Disabling Kotlin Native Toolchain auto-provisioning.")
+            println("A user-provided Kotlin/Native distribution configured: ${overriddenKonanHome}. Disabling Kotlin Native Toolchain auto-provisioning.")
         } else {
-            processToolchain(bundleDir, projectLogger, reinstallFlag, kotlinNativeVersion, kotlinNativeBundleConfiguration)
+            processToolchain(bundleDir, reinstallFlag, kotlinNativeVersion, kotlinNativeBundleConfiguration)
         }
-
-        setupKotlinNativePlatformLibraries(
-            objectFactory,
-            konanTargets,
-            propertiesProvider,
-            kotlinPropertiesProvider,
-            useXcodeMessageStyle,
-            nativeProperties,
-        )
     }
 
     private fun processToolchain(
         bundleDir: File,
-        projectLogger: Logger,
+//        projectLogger: Logger,
         reinstallFlag: Boolean,
         kotlinNativeVersion: String,
         kotlinNativeBundleConfiguration: ConfigurableFileCollection,
     ) {
         val lock =
-            NativeDistributionCommonizerLock(bundleDir) { message -> projectLogger.info("Kotlin Native Bundle: $message") }
+            NativeDistributionCommonizerLock(bundleDir) { message -> println("Kotlin Native Bundle: $message") }
 
         lock.withLock {
             val needToReinstall =
                 KotlinToolingVersion(parameters.kotlinNativeVersion.get()).maturity == KotlinToolingVersion.Maturity.SNAPSHOT
             if (needToReinstall) {
-                projectLogger.debug("Snapshot version could be changed, to be sure that up-to-date version is used, Kotlin/Native should be reinstalled")
+                println("Snapshot version could be changed, to be sure that up-to-date version is used, Kotlin/Native should be reinstalled")
             }
 
             removeBundleIfNeeded(reinstallFlag || needToReinstall, bundleDir)
@@ -167,13 +153,13 @@ internal abstract class KotlinNativeBundleBuildService : BuildService<KotlinNati
                 val gradleCachesKotlinNativeDir =
                     resolveKotlinNativeConfiguration(kotlinNativeVersion, kotlinNativeBundleConfiguration)
 
-                projectLogger.info("Moving Kotlin/Native bundle from tmp directory $gradleCachesKotlinNativeDir to ${bundleDir.absolutePath}")
+                println("Moving Kotlin/Native bundle from tmp directory $gradleCachesKotlinNativeDir to ${bundleDir.absolutePath}")
                 fso.copy {
                     it.from(gradleCachesKotlinNativeDir)
                     it.into(bundleDir)
                 }
                 createSuccessfulInstallationFile(bundleDir)
-                projectLogger.info("Moved Kotlin/Native bundle from $gradleCachesKotlinNativeDir to ${bundleDir.absolutePath}")
+                println("Moved Kotlin/Native bundle from $gradleCachesKotlinNativeDir to ${bundleDir.absolutePath}")
             }
         }
     }
@@ -239,7 +225,7 @@ internal abstract class KotlinNativeBundleBuildService : BuildService<KotlinNati
         return gradleCachesKotlinNativeDir
     }
 
-    internal fun setupKotlinNativePlatformLibraries(
+    fun setupKotlinNativePlatformLibraries(
         objectFactory: ObjectFactory,
         konanTargets: Set<KonanTarget>,
         propertiesProvider: PropertiesProvider,//PropertiesProvider(project)
