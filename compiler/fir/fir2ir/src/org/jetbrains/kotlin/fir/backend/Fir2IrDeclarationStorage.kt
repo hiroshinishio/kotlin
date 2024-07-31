@@ -397,7 +397,13 @@ class Fir2IrDeclarationStorage(
 
             function.origin.generatedAnyMethod -> {
                 val name = function.nameOrSpecialName
-                require(OperatorNameConventions.isComponentN(name) || name == DATA_CLASS_COPY) {
+                require(
+                    OperatorNameConventions.isComponentN(name)
+                            || name == DATA_CLASS_COPY
+                            || name == OperatorNameConventions.EQUALS
+                            || name == OperatorNameConventions.HASH_CODE
+                            || name == OperatorNameConventions.TO_STRING
+                ) {
                     "Only componentN functions should be cached this way, but got: $name"
                 }
                 functionCache[function] = irFunctionSymbol
