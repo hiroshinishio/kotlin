@@ -41,9 +41,8 @@ abstract class GenerateProjectStructureMetadata : DefaultTask() {
         ).get().asFile
 
     @get:OutputFile
-    internal val sourceSetMetadataOutputsFile: Provider<RegularFile> = projectLayout.buildDirectory.file(
-        "internal/kmp/$SOURCE_SET_METADATA"
-    )
+    internal val sourceSetMetadataOutputsFile: Provider<RegularFile> =
+        project.layout.buildDirectory.file("internal/kmp$SOURCE_SET_METADATA")
 
 
     @get:Nested

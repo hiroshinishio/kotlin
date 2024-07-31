@@ -105,7 +105,7 @@ private fun Configuration.addSecondaryOutgoingVariant(project: Project) {
 
     apiClassesVariant.attributes.setAttribute(sourceSetsMetadataAttribute, true)
 
-    apiClassesVariant.artifact(project.locateOrRegisterGenerateProjectStructureMetadataTask().map { it.sourceSetMetadataOutputsFile })
+    apiClassesVariant.artifact(project.locateOrRegisterGenerateProjectStructureMetadataTask().flatMap { it.sourceSetMetadataOutputsFile })
 
 }
 
