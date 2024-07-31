@@ -6,6 +6,8 @@
 package org.jetbrains.kotlin.gradle.plugin.mpp.apple.swiftexport
 
 import org.gradle.api.Project
+import org.gradle.api.artifacts.dsl.DependencyHandler
+import org.gradle.api.model.ObjectFactory
 import org.jetbrains.kotlin.gradle.dsl.multiplatformExtension
 import org.jetbrains.kotlin.gradle.dsl.supportedAppleTargets
 import org.jetbrains.kotlin.gradle.plugin.KotlinProjectSetupAction
@@ -13,6 +15,7 @@ import org.jetbrains.kotlin.gradle.plugin.PropertiesProvider.Companion.kotlinPro
 import org.jetbrains.kotlin.gradle.plugin.addExtension
 import org.jetbrains.kotlin.gradle.plugin.diagnostics.KotlinToolingDiagnostics
 import org.jetbrains.kotlin.gradle.plugin.diagnostics.reportDiagnosticOncePerBuild
+import org.jetbrains.kotlin.gradle.plugin.mpp.StaticLibrary
 import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XcodeEnvironment
 import org.jetbrains.kotlin.gradle.plugin.mpp.apple.registerEmbedSwiftExportTask
 import org.jetbrains.kotlin.swiftexport.ExperimentalSwiftExportDsl
@@ -26,35 +29,45 @@ internal object SwiftExportDSLConstants {
 @ExperimentalSwiftExportDsl
 internal val SetUpSwiftExportAction = KotlinProjectSetupAction {
     if (!kotlinPropertiesProvider.swiftExportEnabled) return@KotlinProjectSetupAction
-    warnAboutExperimentalSwiftExportFeature(project)
-    val kotlinExtension = project.multiplatformExtension
-    val swiftExportExtension = project.objects.newInstance(SwiftExportExtension::class.java, this)
+    warnAboutExperimentalSwiftExportFeature()
+    val swiftExportExtension = objects.swiftExportExtension(dependencies)
 
-    kotlinExtension.addExtension(SwiftExportDSLConstants.SWIFT_EXPORT_EXTENSION_NAME, swiftExportExtension)
+    multiplatformExtension.addExtension(
+        SwiftExportDSLConstants.SWIFT_EXPORT_EXTENSION_NAME,
+        swiftExportExtension
+    )
 
-    registerSwiftExportPipeline(project, swiftExportExtension)
+    registerSwiftExportPipeline(swiftExportExtension)
 }
 
-internal fun warnAboutExperimentalSwiftExportFeature(project: Project) {
-    project.reportDiagnosticOncePerBuild(
-        KotlinToolingDiagnostics.ExperimentalFeatureWarning("Swift Export", "https://jb.gg/3s5ngl")
+private fun Project.warnAboutExperimentalSwiftExportFeature() {
+    reportDiagnosticOncePerBuild(
+        KotlinToolingDiagnostics.ExperimentalFeatureWarning("Swift Export", "https://kotl.in/1cr522")
     )
 }
 
-@ExperimentalSwiftExportDsl
-private fun registerSwiftExportPipeline(
-    project: Project,
+private fun ObjectFactory.swiftExportExtension(dependencies: DependencyHandler): SwiftExportExtension =
+    newInstance(SwiftExportExtension::class.java, dependencies)
+
+private fun Project.registerSwiftExportPipeline(
     swiftExportExtension: SwiftExportExtension,
 ) {
     val environment = XcodeEnvironment(project)
 
-    project
-        .multiplatformExtension
+    multiplatformExtension
         .supportedAppleTargets()
-        .all { target ->
+        .configureEach { target ->
             target.binaries.staticLib(SwiftExportDSLConstants.SWIFT_EXPORT_LIBRARY_PREFIX) {
-                swiftExportExtension.addBinary(this)
-                project.registerEmbedSwiftExportTask(this, environment, swiftExportExtension)
+                setupSwiftExport(this, environment, swiftExportExtension)
             }
         }
+}
+
+private fun Project.setupSwiftExport(
+    library: StaticLibrary,
+    environment: XcodeEnvironment,
+    swiftExportExtension: SwiftExportExtension,
+) {
+    swiftExportExtension.addBinary(library)
+    registerEmbedSwiftExportTask(library, environment, swiftExportExtension)
 }

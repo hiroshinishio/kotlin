@@ -25,7 +25,7 @@ internal interface KotlinTargetComponentWithPublication : KotlinTargetComponent 
     var publicationDelegate: MavenPublication?
 }
 
-internal fun getCoordinatesFromProviders(
+internal fun getCoordinatesFromGroupNameAndVersion(
     moduleGroupProvider: Provider<String>,
     moduleNameProvider: Provider<String>,
     moduleVersionProvider: Provider<String>,
@@ -49,24 +49,23 @@ internal fun getCoordinatesFromProviders(
 internal fun getCoordinatesFromPublicationDelegateAndProject(
     publication: MavenPublication?,
     project: Project,
-    target: KotlinTarget?
+    target: KotlinTarget?,
 ): ModuleVersionIdentifier {
     val moduleNameProvider = project.provider { publication?.artifactId ?: dashSeparatedName(project.name, target?.name?.toLowerCase()) }
     val moduleGroupProvider = project.provider { publication?.groupId ?: project.group.toString() }
     val moduleVersionProvider = project.provider { publication?.version ?: project.version.toString() }
-    return getCoordinatesFromProviders(moduleGroupProvider, moduleNameProvider, moduleVersionProvider)
+    return getCoordinatesFromGroupNameAndVersion(moduleGroupProvider, moduleNameProvider, moduleVersionProvider)
 }
 
 private interface KotlinTargetComponentWithCoordinatesAndPublication :
     KotlinTargetComponentWithPublication,
-    ComponentWithCoordinates /* Gradle 4.7+ API, don't use with older versions */
-{
+    ComponentWithCoordinates /* Gradle 4.7+ API, don't use with older versions */ {
     override fun getCoordinates() = getCoordinatesFromPublicationDelegateAndProject(publicationDelegate, target.project, target)
 }
 
 open class KotlinVariant(
-    val producingCompilation: KotlinCompilation<*>,
-    private val usages: Set<DefaultKotlinUsageContext>
+    private val producingCompilation: KotlinCompilation<*>,
+    private val usages: Set<DefaultKotlinUsageContext>,
 ) : InternalKotlinTargetComponent(), KotlinTargetComponentWithPublication {
     var componentName: String? = null
 
@@ -86,13 +85,15 @@ open class KotlinVariant(
     @Deprecated(
         message = "Sources artifacts are now published as separate variant " +
                 "use target.sourcesElementsConfigurationName to obtain necessary information",
-        replaceWith = ReplaceWith("target.sourcesElementsConfigurationName")    )
-    override val sourcesArtifacts: Set<PublishArtifact> get() = target
-        .project
-        .configurations
-        .findByName(target.sourcesElementsConfigurationName)
-        ?.artifacts
-        ?: emptySet()
+        replaceWith = ReplaceWith("target.sourcesElementsConfigurationName")
+    )
+    override val sourcesArtifacts: Set<PublishArtifact>
+        get() = target
+            .project
+            .configurations
+            .findByName(target.sourcesElementsConfigurationName)
+            ?.artifacts
+            ?: emptySet()
 
     internal var defaultArtifactIdSuffix: String? = null
 
@@ -104,14 +105,14 @@ open class KotlinVariant(
 
 open class KotlinVariantWithCoordinates(
     producingCompilation: KotlinCompilation<*>,
-    usages: Set<DefaultKotlinUsageContext>
+    usages: Set<DefaultKotlinUsageContext>,
 ) : KotlinVariant(producingCompilation, usages),
     KotlinTargetComponentWithCoordinatesAndPublication /* Gradle 4.7+ API, don't use with older versions */
 
 class KotlinVariantWithMetadataVariant(
     producingCompilation: KotlinCompilation<*>,
     usages: Set<DefaultKotlinUsageContext>,
-    internal val metadataTarget: AbstractKotlinTarget
+    internal val metadataTarget: AbstractKotlinTarget,
 ) : KotlinVariantWithCoordinates(producingCompilation, usages), ComponentWithVariants {
     override fun getVariants() = metadataTarget.components
 }
@@ -119,7 +120,7 @@ class KotlinVariantWithMetadataVariant(
 class JointAndroidKotlinTargetComponent(
     override val target: KotlinAndroidTarget,
     private val nestedVariants: Set<KotlinVariant>,
-    val flavorNames: List<String>
+    val flavorNames: List<String>,
 ) : InternalKotlinTargetComponent(), KotlinTargetComponentWithCoordinatesAndPublication {
 
     override fun getUsages(): Set<KotlinUsageContext> = nestedVariants.filter { it.publishable }.flatMap { it.usages }.toSet()
