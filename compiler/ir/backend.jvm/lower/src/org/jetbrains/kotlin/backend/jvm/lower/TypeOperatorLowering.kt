@@ -80,13 +80,15 @@ internal class TypeOperatorLowering(private val backendContext: JvmBackendContex
         }
     }
 
+    private fun IrExpression.isUnsafeCoercionCall(): Boolean = this is IrCall && symbol == backendContext.ir.symbols.unsafeCoerceIntrinsic
+
     private fun lowerCast(argument: IrExpression, type: IrType): IrExpression =
         when {
             type.isReifiedTypeParameter ->
                 builder.irAs(argument, type)
             argument.type.isInlineClassType() && argument.type.isSubtypeOfClass(type.erasedUpperBound.symbol) ->
                 argument
-            isCompatibleArrayType(argument.type, type) ->
+            isCompatibleArrayType(argument.type, type) && !argument.isUnsafeCoercionCall() ->
                 argument
             type.isNullable() || argument.isDefinitelyNotNull() ->
                 builder.irAs(argument, type)
