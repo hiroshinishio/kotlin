@@ -278,7 +278,7 @@ abstract class DeclarationStubGenerator(
     private fun IrLazyFunctionBase.createReceiverParameter(parameter: ReceiverParameterDescriptor?): IrValueParameter? =
         if (stubGenerator.extensions.isStaticFunction(descriptor)) null
         else typeTranslator.buildWithScope(this) {
-            parameter?.generateReceiverParameterStub()?.also { it.parent = parent }
+            parameter?.generateReceiverParameterStub()?.also { it.parent = this@createReceiverParameter }
         }
 
     // in IR Generator enums also have special handling, but here we have not enough data for it
