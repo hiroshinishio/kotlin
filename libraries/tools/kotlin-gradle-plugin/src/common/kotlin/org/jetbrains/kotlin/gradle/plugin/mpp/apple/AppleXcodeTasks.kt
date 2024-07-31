@@ -289,7 +289,7 @@ private fun Project.checkSandboxAndWriteProtectionTask(
         task.description = "Check BUILT_PRODUCTS_DIR accessible and ENABLE_USER_SCRIPT_SANDBOXING not enabled"
         task.inputs.property(AppleXcodeTasks.builtProductsDir, environment.builtProductsDir)
 
-        task.doFirst {
+        task.doLast {
             val dirAccessible = builtProductsDirAccessibility(it.inputs.properties[AppleXcodeTasks.builtProductsDir] as File?)
             when (dirAccessible) {
                 DirAccessibility.NOT_ACCESSIBLE -> fireSandboxException(frameworkTaskName, userScriptSandboxingEnabled)

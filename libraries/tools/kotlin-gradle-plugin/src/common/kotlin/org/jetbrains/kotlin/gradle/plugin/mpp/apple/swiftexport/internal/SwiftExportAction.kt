@@ -5,18 +5,26 @@
 
 package org.jetbrains.kotlin.gradle.plugin.mpp.apple.swiftexport.internal
 
+import org.gradle.api.provider.ListProperty
+import org.gradle.api.provider.Property
 import org.gradle.workers.WorkAction
+import org.gradle.workers.WorkParameters
 import org.jetbrains.kotlin.gradle.utils.getFile
 import org.jetbrains.kotlin.swiftexport.standalone.*
 import org.jetbrains.kotlin.gradle.plugin.mpp.apple.SerializationTools
+import org.jetbrains.kotlin.konan.target.Distribution
 import java.io.File
 import java.time.Instant
 import java.util.logging.Level
 import java.util.logging.Logger
 
-internal abstract class SwiftExportAction : WorkAction<SwiftExportWorkParameters> {
+internal abstract class SwiftExportAction : WorkAction<SwiftExportAction.SwiftExportWorkParameters> {
+    internal interface SwiftExportWorkParameters : SwiftExportTaskParameters, WorkParameters {
+        val swiftModules: ListProperty<SwiftExportedModule>
+        val konanDistribution: Property<Distribution>
+    }
 
-    companion object : SwiftExportLogger {
+    private val swiftExportLogger = object : SwiftExportLogger {
         private val logger = Logger.getLogger(this::class.java.name)
 
         override fun report(severity: SwiftExportLogger.Severity, message: String) {
@@ -34,9 +42,7 @@ internal abstract class SwiftExportAction : WorkAction<SwiftExportWorkParameters
     override fun execute() {
 
         val exportModules = parameters.swiftModules.get().map { module ->
-            module.toInputModule { flattenPackage ->
-                config(flattenPackage)
-            }
+            module.toInputModule(config(module.flattenPackage))
         }.toSet()
 
         val modules = GradleSwiftExportModules(
@@ -58,7 +64,7 @@ internal abstract class SwiftExportAction : WorkAction<SwiftExportWorkParameters
             ).also { settings ->
                 flattenPackage?.let { settings[SwiftExportConfig.ROOT_PACKAGE] = it }
             },
-            logger = Companion,
+            logger = swiftExportLogger,
             distribution = parameters.konanDistribution.get(),
             outputPath = parameters.outputPath.getFile().toPath()
         )
@@ -78,11 +84,11 @@ internal fun Set<SwiftExportModule>.toPlainList(): List<GradleSwiftExportModule>
     return modules
 }
 
-private fun SwiftExportedModule.toInputModule(config: (String?) -> SwiftExportConfig): InputModule {
+private fun SwiftExportedModule.toInputModule(config: SwiftExportConfig): InputModule {
     return InputModule(
         name = moduleName,
         path = artifact.toPath(),
-        config = config(flattenPackage)
+        config = config
     )
 }
 

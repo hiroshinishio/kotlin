@@ -7,7 +7,7 @@ package org.jetbrains.kotlin.gradle.plugin.mpp.apple.swiftexport.tasks
 
 import org.gradle.api.DefaultTask
 import org.gradle.api.artifacts.component.ModuleComponentIdentifier
-import org.gradle.api.artifacts.result.ResolvedDependencyResult
+import org.gradle.api.artifacts.result.ResolvedComponentResult
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.FileSystemOperations
 import org.gradle.api.file.RegularFileProperty
@@ -21,9 +21,11 @@ import org.jetbrains.kotlin.gradle.plugin.mpp.apple.swiftexport.SwiftExportedMod
 import org.jetbrains.kotlin.gradle.plugin.mpp.apple.swiftexport.internal.SwiftExportTaskParameters
 import org.jetbrains.kotlin.gradle.plugin.mpp.apple.swiftexport.internal.SwiftExportAction
 import org.jetbrains.kotlin.gradle.plugin.mpp.apple.swiftexport.internal.SwiftExportedModule
+import org.jetbrains.kotlin.gradle.targets.native.toolchain.KotlinNativeProvider
 import org.jetbrains.kotlin.gradle.utils.LazyResolvedConfiguration
 import org.jetbrains.kotlin.gradle.utils.dashSeparatedToUpperCamelCase
 import org.jetbrains.kotlin.gradle.utils.getFile
+import org.jetbrains.kotlin.konan.target.Distribution
 import java.io.File
 import javax.inject.Inject
 
@@ -55,6 +57,9 @@ internal abstract class SwiftExportTask @Inject constructor(
     @get:Nested
     abstract val exportedModules: SetProperty<SwiftExportedModuleVersionMetadata>
 
+    @get:Nested
+    abstract val kotlinNativeProvider: Property<KotlinNativeProvider>
+
     @get:InputFiles
     @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val swiftExportClasspath: ConfigurableFileCollection
@@ -72,11 +77,18 @@ internal abstract class SwiftExportTask @Inject constructor(
 
         swiftExportQueue.submit(SwiftExportAction::class.java) { workParameters ->
             workParameters.bridgeModuleName.set(parameters.bridgeModuleName)
-            workParameters.konanDistribution.set(parameters.konanDistribution)
             workParameters.outputPath.set(parameters.outputPath)
             workParameters.stableDeclarationsOrder.set(parameters.stableDeclarationsOrder)
             workParameters.swiftModules.set(swiftExportedModules())
             workParameters.swiftModulesFile.set(parameters.swiftModulesFile)
+
+            workParameters.konanDistribution.set(
+                kotlinNativeProvider.flatMap {
+                    it.bundleDirectory
+                }.map {
+                    Distribution(it.asFile.canonicalPath)
+                }
+            )
         }
     }
 
@@ -96,7 +108,7 @@ internal abstract class SwiftExportTask @Inject constructor(
         }.map { modules ->
             modules.toMutableList().apply {
                 add(
-                    SwiftExportedModule(
+                    SwiftExportedModuleImp(
                         mainModuleInput.moduleName.get(),
                         mainModuleInput.flattenPackage.orNull,
                         mainModuleInput.artifact.getFile()
@@ -112,34 +124,16 @@ private val File.isCinteropKlib get() = extension == "klib" && nameWithoutExtens
 internal fun Collection<File>.filterNotCinteropKlibs(): List<File> = filterNot(File::isCinteropKlib)
 
 private fun LazyResolvedConfiguration.swiftExportedModules(exportedModules: Set<SwiftExportedModuleVersionMetadata>): List<SwiftExportedModule> {
-    return allResolvedDependencies.filterNot { dependencyResult ->
+    return allResolvedDependencies.asSequence().filterNot { dependencyResult ->
         dependencyResult.resolvedVariant.owner.let { id -> id is ModuleComponentIdentifier && id.module == "kotlin-stdlib" }
-    }.map { dependencyResult ->
-        findAndCreateSwiftExportedModule(exportedModules, dependencyResult)
-    }
-}
-
-private fun LazyResolvedConfiguration.findAndCreateSwiftExportedModule(
-    exportedModules: Set<SwiftExportedModuleVersionMetadata>,
-    resolvedDependency: ResolvedDependencyResult
-): SwiftExportedModule {
-    val resolvedModule = resolvedDependency.selected.moduleVersion
-        ?: throw AssertionError("Missing module version for dependency: $resolvedDependency")
-
-    val module = exportedModules.firstOrNull {
-        resolvedModule.name == it.moduleVersion.name &&
-                resolvedModule.group == it.moduleVersion.group &&
-                resolvedModule.version == it.moduleVersion.version
-    }
-
-    return if (module != null) {
-        val dependencyArtifacts = getArtifacts(resolvedDependency)
+    }.map { it.selected }.map { component ->
+        val dependencyArtifacts = getArtifacts(component)
             .map { it.file }
             .filterNotCinteropKlibs()
 
         if (dependencyArtifacts.isEmpty() || dependencyArtifacts.size > 1) {
             throw AssertionError(
-                "Dependency $resolvedDependency ${
+                "Component $component ${
                     if (dependencyArtifacts.isEmpty())
                         "doesn't have suitable artifacts"
                     else
@@ -148,12 +142,37 @@ private fun LazyResolvedConfiguration.findAndCreateSwiftExportedModule(
             )
         }
 
-        SwiftExportedModule(
-            module.moduleName.orElse(dashSeparatedToUpperCamelCase(module.moduleVersion.name)).get(),
-            module.flattenPackage.orNull,
-            dependencyArtifacts.single()
-        )
-    } else {
-        throw AssertionError("Couldn't find matching dependency for: $resolvedModule")
-    }
+        Pair(component, dependencyArtifacts.single())
+    }.distinctBy { (_, artifact) ->
+        artifact
+    }.map { (component, artifact) ->
+        findAndCreateSwiftExportedModule(exportedModules, component, artifact)
+    }.toList()
 }
+
+private fun findAndCreateSwiftExportedModule(
+    exportedModules: Set<SwiftExportedModuleVersionMetadata>,
+    resolvedComponent: ResolvedComponentResult,
+    artifact: File,
+): SwiftExportedModule {
+    val resolvedModule = resolvedComponent.moduleVersion
+        ?: throw AssertionError("Missing module version for component: $resolvedComponent")
+
+    val module = exportedModules.single {
+        resolvedModule.name == it.moduleVersion.name &&
+                resolvedModule.group == it.moduleVersion.group &&
+                resolvedModule.version == it.moduleVersion.version
+    }
+
+    return SwiftExportedModuleImp(
+        module.moduleName.orElse(dashSeparatedToUpperCamelCase(module.moduleVersion.name)).get(),
+        module.flattenPackage.orNull,
+        artifact
+    )
+}
+
+private data class SwiftExportedModuleImp(
+    override val moduleName: String,
+    override val flattenPackage: String?,
+    override val artifact: File,
+) : SwiftExportedModule

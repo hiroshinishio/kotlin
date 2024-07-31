@@ -11,6 +11,7 @@ import org.gradle.api.Task
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.TaskProvider
 import org.jetbrains.kotlin.gradle.dsl.KotlinNativeBinaryContainer
+import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
 import org.jetbrains.kotlin.gradle.plugin.mpp.*
 import org.jetbrains.kotlin.gradle.plugin.mpp.apple.AppleTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.apple.appleTarget
@@ -38,13 +39,13 @@ internal fun Project.registerSwiftExportTask(
     taskGroup: String,
     binary: StaticLibrary,
 ): TaskProvider<*> {
-    val mainCompilation = binary.target.compilations.getByName("main")
+    val mainCompilation = binary.target.compilations.getByName(KotlinCompilation.MAIN_COMPILATION_NAME)
     val buildConfiguration = binary.buildType.configuration
     val target = binary.target
 
-    val swiftApiModuleName = provider {
-        swiftExportExtension.moduleName.getOrElse(dashSeparatedToUpperCamelCase(project.name))
-    }
+    val swiftApiModuleName = swiftExportExtension
+        .moduleName
+        .orElse(dashSeparatedToUpperCamelCase(project.name))
 
     val taskNamePrefix = lowerCamelCaseName(
         target.disambiguationClassifier ?: target.name,
@@ -139,16 +140,16 @@ private fun Project.registerSwiftExportRun(
         // Input
         task.swiftExportClasspath.from(maybeCreateSwiftExportClasspathResolvableConfiguration())
         task.parameters.bridgeModuleName.set("SharedBridge")
-        task.parameters.konanDistribution.set(Distribution(konanDistribution.root.absolutePath))
 
         task.configuration.set(configurationProvider)
         task.exportedModules.set(exportedModules)
         task.mainModuleInput.moduleName.set(swiftApiModuleName)
         task.mainModuleInput.flattenPackage.set(swiftApiFlattenPackage)
-        task.mainModuleInput.artifact.set(
-            objects.fileProperty().fileProvider(
-                mainCompilation.compileTaskProvider.map { it.outputFile.get() }
-            )
+        task.kotlinNativeProvider.set(
+            mainCompilation.compileTaskProvider.map { it.kotlinNativeProvider.get() }
+        )
+        task.mainModuleInput.artifact.fileProvider(
+            mainCompilation.compileTaskProvider.map { it.outputFile.get() }
         )
 
         // Output

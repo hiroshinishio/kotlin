@@ -8,8 +8,8 @@ package org.jetbrains.kotlin.gradle.plugin.mpp.apple.swiftexport.internal
 import java.io.File
 import java.io.Serializable
 
-internal data class SwiftExportedModule(
-    val moduleName: String,
-    val flattenPackage: String?,
-    val artifact: File,
-) : Serializable
+internal interface SwiftExportedModule : Serializable {
+    val moduleName: String
+    val flattenPackage: String?
+    val artifact: File
+}
