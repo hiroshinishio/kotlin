@@ -276,40 +276,6 @@ class SwiftExportIT : KGPBaseTest() {
             assert(x64Compilation.isSuccessful)
         }
     }
-
-    @DisplayName("Swift Export experimental feature message shown when executes embedSwiftExport")
-    @GradleTest
-    fun testSwiftExportExperimentalFeatureMessageShown(
-        gradleVersion: GradleVersion,
-        @TempDir testBuildDir: Path,
-    ) {
-        nativeProject(
-            "simpleSwiftExport",
-            gradleVersion,
-        ) {
-            projectPath.enableSwiftExport()
-
-            build(
-                ":shared:embedSwiftExportForXcode",
-                environmentVariables = swiftExportEmbedAndSignEnvVariables(testBuildDir),
-                buildOptions = defaultBuildOptions.copy(
-                    configurationCache = BuildOptions.ConfigurationCacheValue.ENABLED,
-                )
-            ) {
-                assertTasksExecuted(":shared:iosArm64DebugSwiftExport")
-                assertOutputContains(
-                    """
-                        ⚠️ Experimental Feature Notice ⚠️
-        
-                        Swift Export is an experimental feature and subject to changes in future releases.
-                        It may not function as expected and can contain known and unknown bugs. Use it at your own risk.
-        
-                        Thank you for your understanding and we would appreciate your feedback on it in YouTrack (https://jb.gg/3s5ngl).
-                    """.trimIndent()
-                )
-            }
-        }
-    }
 }
 
 @OptIn(EnvironmentalVariablesOverride::class)

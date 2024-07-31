@@ -10,11 +10,11 @@ package org.jetbrains.kotlin.gradle.unitTests
 
 import org.gradle.api.NamedDomainObjectCollection
 import org.gradle.api.internal.project.ProjectInternal
-import org.gradle.kotlin.dsl.repositories
 import org.jetbrains.kotlin.gradle.dependencyResolutionTests.configureRepositoriesForTests
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.dsl.multiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
+import org.jetbrains.kotlin.gradle.plugin.diagnostics.KotlinToolingDiagnostics
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.NativeBuildType
 import org.jetbrains.kotlin.gradle.plugin.mpp.apple.AppleTarget
@@ -245,7 +245,7 @@ class SwiftExportUnitTests {
 
         assertEquals("LazyResolvedConfiguration(configuration='${arm64SimLib.exportConfigurationName}')", configuration.toString())
 
-        val modules = configuration.swiftExportedModules()
+        val modules = swiftExportTask.swiftExportedModules().get()
 
         val subProject = modules.single { it.moduleName == "Subproject" }
         assertEquals(subProject.moduleName, "Subproject")
@@ -255,9 +255,17 @@ class SwiftExportUnitTests {
         assertEquals(kotlinXCoroutines.moduleName, "KotlinxCoroutinesCore")
         assertEquals(kotlinXCoroutines.artifact.name, "kotlinx-coroutines-core.klib")
 
-        val atomicFu = modules.single { it.moduleName == "Atomicfu" }
-        assertEquals(atomicFu.moduleName, "Atomicfu")
-        assertEquals(atomicFu.artifact.name, "atomicfu.klib")
+        val atomicFu = modules.single { it.moduleName == "Shared" }
+        assertEquals(atomicFu.moduleName, "Shared")
+        assertEquals(atomicFu.artifact.name, "shared.klib")
+    }
+
+    @Test
+    fun `test swift export experimental feature message`() {
+        val project = swiftExportProject()
+        project.evaluate()
+
+        project.assertContainsDiagnostic(KotlinToolingDiagnostics.ExperimentalFeatureWarning)
     }
 }
 
