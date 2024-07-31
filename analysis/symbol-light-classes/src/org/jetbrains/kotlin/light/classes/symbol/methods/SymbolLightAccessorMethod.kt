@@ -217,8 +217,8 @@ internal class SymbolLightAccessorMethod private constructor(
     override fun isConstructor(): Boolean = false
 
     private val _isDeprecated: Boolean by lazyPub {
-        withAccessorSymbol { accessorSymbol ->
-            accessorSymbol.hasDeprecatedAnnotation()
+        withPropertySymbol { propertySymbol ->
+            propertySymbol.hasDeprecatedAnnotation() || propertySymbol.accessorSymbol.hasDeprecatedAnnotation()
         }
     }
 
