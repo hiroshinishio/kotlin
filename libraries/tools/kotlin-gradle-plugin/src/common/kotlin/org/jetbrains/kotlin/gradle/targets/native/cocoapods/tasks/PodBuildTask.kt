@@ -19,7 +19,6 @@ import org.jetbrains.kotlin.gradle.plugin.cocoapods.CocoapodsExtension.Cocoapods
 import org.jetbrains.kotlin.gradle.plugin.cocoapods.cocoapodsBuildDirs
 import org.jetbrains.kotlin.gradle.plugin.mpp.apple.AppleTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.apple.genericPlatformDestination
-import org.jetbrains.kotlin.gradle.plugin.mpp.apple.sdk
 import org.jetbrains.kotlin.gradle.utils.getFile
 import org.jetbrains.kotlin.gradle.utils.runCommand
 import org.jetbrains.kotlin.konan.target.Family
@@ -84,7 +83,6 @@ abstract class PodBuildTask @Inject constructor(
             "xcodebuild",
             "-project", podsXcodeProjDir.asFile.name,
             "-scheme", pod.get().schemeName,
-            "-sdk", appleTarget.get().sdk,
             "-destination", appleTarget.get().genericPlatformDestination,
             "-configuration", podBuildSettings.configuration,
         )

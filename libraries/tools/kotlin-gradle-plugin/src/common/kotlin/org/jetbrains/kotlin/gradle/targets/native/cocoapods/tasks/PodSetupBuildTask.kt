@@ -16,7 +16,6 @@ import org.gradle.work.DisableCachingByDefault
 import org.jetbrains.kotlin.gradle.plugin.cocoapods.CocoapodsExtension.CocoapodsDependency
 import org.jetbrains.kotlin.gradle.plugin.cocoapods.cocoapodsBuildDirs
 import org.jetbrains.kotlin.gradle.plugin.mpp.apple.AppleTarget
-import org.jetbrains.kotlin.gradle.plugin.mpp.apple.genericPlatformDestination
 import org.jetbrains.kotlin.gradle.plugin.mpp.apple.sdk
 import org.jetbrains.kotlin.gradle.utils.getFile
 import org.jetbrains.kotlin.gradle.utils.runCommand
@@ -50,7 +49,6 @@ abstract class PodSetupBuildTask @Inject constructor(projectLayout: ProjectLayou
             "-project", podsXcodeProjDir.name,
             "-scheme", pod.get().schemeName,
             "-sdk", appleTarget.get().sdk,
-            "-destination", appleTarget.get().genericPlatformDestination
         )
 
         val outputText = runCommand(buildSettingsReceivingCommand, logger) { directory(podsXcodeProjDir.parentFile) }
