@@ -1,4 +1,4 @@
-@file:Suppress("RemoveRedundantSpreadOperator")
+@file:Suppress("RemoveRedundantSpreadOperator", "REDUNDANT_EXPLICIT_TYPE")
 
 import abitestutils.abiTest
 

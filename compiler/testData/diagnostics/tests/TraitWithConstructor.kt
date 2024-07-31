@@ -1,4 +1,3 @@
-// FIR_IDENTICAL
 // DIAGNOSTICS: -MISSING_CONSTRUCTOR_KEYWORD
 
 class C(val a: String) {}

@@ -192,7 +192,7 @@ class B(var a: Int = 0) {
 package testPackCase7
 
 fun case7 () {
-    val iterable: Iterable = Iterable(Inv('s'))
+    val iterable: <!REDUNDANT_EXPLICIT_TYPE!>Iterable<!> = Iterable(Inv('s'))
     for (i in <!NOT_FUNCTION_AS_OPERATOR!>iterable<!>) {
         println(i)
     }
@@ -225,7 +225,7 @@ class Inv(val c: Char) {
 package testPackCase8
 
 fun case8 () {
-    val iterable: Iterable = Iterable()
+    val iterable: <!REDUNDANT_EXPLICIT_TYPE!>Iterable<!> = Iterable()
     for (i in <!NOT_FUNCTION_AS_OPERATOR!>iterable<!>) {
         println(i)
     }

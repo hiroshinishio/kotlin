@@ -6,7 +6,7 @@
 import kotlin.contracts.*
 
 fun foo(y: Boolean) {
-    val x: Int = 42
+    val x: <!REDUNDANT_EXPLICIT_TYPE!>Int<!> = 42
     <!CONTRACT_NOT_ALLOWED("Contract should be the first statement.")!>contract<!> {
         returns() implies y
     }

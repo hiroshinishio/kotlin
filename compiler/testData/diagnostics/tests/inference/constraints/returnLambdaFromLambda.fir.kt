@@ -10,9 +10,9 @@ fun testLambda() {
     }
 
     val twoLambda: (Int) -> Int = myRun {
-        val x: Int = 1
+        val x: <!REDUNDANT_EXPLICIT_TYPE!>Int<!> = 1
         run {
-            val y: Int = 2
+            val y: <!REDUNDANT_EXPLICIT_TYPE!>Int<!> = 2
             { x + y }
         }
     }

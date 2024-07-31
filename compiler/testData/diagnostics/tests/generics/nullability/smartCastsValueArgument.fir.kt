@@ -6,7 +6,7 @@ fun bar3(x: String) {}
 
 fun <T : CharSequence?> foo(x: T) {
     var y1: CharSequence = ""
-    var y2: String = ""
+    var y2: <!REDUNDANT_EXPLICIT_TYPE!>String<!> = ""
     if (x != null) {
         if (<!SENSELESS_COMPARISON!>x != null<!>) {}
 

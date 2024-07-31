@@ -24,7 +24,7 @@ import LibPackCase1.a.plusAssign
 import LibPackCase1.b.plusAssign
 
 fun case1 (){
-    var b: B = B()
+    var b: <!REDUNDANT_EXPLICIT_TYPE!>B<!> = B()
     b <!OVERLOAD_RESOLUTION_AMBIGUITY!>+=<!>{ C() }
     b <!OVERLOAD_RESOLUTION_AMBIGUITY!>+=<!>{ 1 }
 }
@@ -57,7 +57,7 @@ import LibPackCase2.a.plusAssign
 import LibPackCase2.b.plusAssign
 
 fun case2 (){
-    var b: B = B()
+    var b: <!REDUNDANT_EXPLICIT_TYPE!>B<!> = B()
     b <!OVERLOAD_RESOLUTION_AMBIGUITY!>+=<!>{ C() }
     b <!OVERLOAD_RESOLUTION_AMBIGUITY!>+=<!>{ 1 }
 

@@ -167,7 +167,7 @@ fun declarations(a: Any?) {
     }
 }
 fun vars(a: Any?) {
-    var b: Int = 0
+    var b: <!REDUNDANT_EXPLICIT_TYPE!>Int<!> = 0
     if (a is Int) {
         b = a
     }

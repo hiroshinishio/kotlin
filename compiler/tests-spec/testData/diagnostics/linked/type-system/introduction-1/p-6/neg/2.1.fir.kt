@@ -48,7 +48,7 @@ fun case_7() {
 
 // TESTCASE NUMBER: 8
 fun case_8() {
-    var x: Int = 10
+    var x: <!REDUNDANT_EXPLICIT_TYPE!>Int<!> = 10
     x = <!NULL_FOR_NONNULL_TYPE!>null<!>
 }
 

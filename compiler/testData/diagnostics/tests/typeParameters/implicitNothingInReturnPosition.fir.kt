@@ -69,7 +69,7 @@ interface F<in T>
 fun <T> F<T>.join() = {}
 
 fun main() {
-    val f: Any = Any()
+    val f: <!REDUNDANT_EXPLICIT_TYPE!>Any<!> = Any()
     (f as F<*>).join()
 }
 

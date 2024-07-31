@@ -1,4 +1,3 @@
-// FIR_IDENTICAL
 fun test() {
     var res : Boolean = true
     res = (res and false)

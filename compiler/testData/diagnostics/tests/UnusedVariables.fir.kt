@@ -34,7 +34,7 @@ class MyTest() {
 
     var a: String = "s"
         set(v: String) {
-            var i: Int = 23
+            var i: <!REDUNDANT_EXPLICIT_TYPE!>Int<!> = 23
             doSmth(i)
             i = 34
             field = v

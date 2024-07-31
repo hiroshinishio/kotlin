@@ -8,7 +8,7 @@ class WrapperFunctions {
 
 fun main() {
     val wrapper = Wrapper<Long>()
-    val number: Int = 5 // doesn't work
+    val number: <!REDUNDANT_EXPLICIT_TYPE!>Int<!> = 5 // doesn't work
 //    val number: Long = 5 // works
 
     <!CANNOT_INFER_PARAMETER_TYPE!>with<!> (WrapperFunctions()) {

@@ -48,7 +48,7 @@ fun case_2(): Int {
         return c <!USELESS_ELVIS!>?: 0<!>
     }
 
-    var c: Int = 0
+    var c: <!REDUNDANT_EXPLICIT_TYPE!>Int<!> = 0
     c = 0
     <!DEBUG_INFO_EXPRESSION_TYPE("kotlin.Int")!>c<!>
     return c

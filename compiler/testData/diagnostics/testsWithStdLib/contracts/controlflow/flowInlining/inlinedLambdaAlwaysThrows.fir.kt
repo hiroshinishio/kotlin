@@ -13,5 +13,5 @@ inline fun myRun(block: () -> Unit): Unit {
 
 fun test() {
     myRun { throw java.lang.IllegalArgumentException() }
-    val x: Int = 42
+    val x: <!REDUNDANT_EXPLICIT_TYPE!>Int<!> = 42
 }

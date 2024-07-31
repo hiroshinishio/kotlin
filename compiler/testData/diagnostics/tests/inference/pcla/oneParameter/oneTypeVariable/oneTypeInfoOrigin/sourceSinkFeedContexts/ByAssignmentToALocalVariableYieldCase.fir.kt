@@ -8,7 +8,7 @@
 
 // PTV is in consuming position (yield-case)
 fun testYield() {
-    val arg: UserKlass = UserKlass()
+    val arg: <!REDUNDANT_EXPLICIT_TYPE!>UserKlass<!> = UserKlass()
     val buildee = build {
         var temp = materialize()
         temp = arg

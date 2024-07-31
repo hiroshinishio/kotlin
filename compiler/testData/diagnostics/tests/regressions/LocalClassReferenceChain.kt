@@ -1,4 +1,3 @@
-// FIR_IDENTICAL
 // KT-47135
 
 fun test2() {

@@ -98,7 +98,7 @@ fun case_7(y: Boolean?) {
  * ISSUES: KT-24652
  */
 fun case_8() {
-    var y: Int = 10
+    var y: <!REDUNDANT_EXPLICIT_TYPE!>Int<!> = 10
     val x: Int? = null
     while (true) {
         y += x ?: break
@@ -113,7 +113,7 @@ fun case_8() {
  * ISSUES: KT-24652
  */
 fun case_9() {
-    var y: Int = 10
+    var y: <!REDUNDANT_EXPLICIT_TYPE!>Int<!> = 10
     val x: Int? = null
     while (true) {
         y -= x ?: break
@@ -128,7 +128,7 @@ fun case_9() {
  * ISSUES: KT-24652
  */
 fun case_10() {
-    var y: Int = 10
+    var y: <!REDUNDANT_EXPLICIT_TYPE!>Int<!> = 10
     val x: Int? = null
     while (true) {
         val z = y - (x ?: break)
@@ -143,7 +143,7 @@ fun case_10() {
  * ISSUES: KT-24652
  */
 fun case_11() {
-    var y: Int = 10
+    var y: <!REDUNDANT_EXPLICIT_TYPE!>Int<!> = 10
     val x: Int? = null
     while (true) {
         val z = y * (x ?: break)
@@ -154,7 +154,7 @@ fun case_11() {
 
 // TESTCASE NUMBER: 12
 fun case_12() {
-    var y: Int = 10
+    var y: <!REDUNDANT_EXPLICIT_TYPE!>Int<!> = 10
     val x: Int? = null
     while (true) {
         y += if (x == null) break else 10
@@ -165,7 +165,7 @@ fun case_12() {
 
 // TESTCASE NUMBER: 13
 fun case_13() {
-    var y: Int = 10
+    var y: <!REDUNDANT_EXPLICIT_TYPE!>Int<!> = 10
     val x: Int? = null
     while (true) {
         val z = y * if (x != null) break else 10

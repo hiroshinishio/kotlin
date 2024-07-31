@@ -32,7 +32,7 @@ fun case1() {
  * ISSUES: KT-35565
  */
 fun case2() {
-    val x: Boolean = false
+    val x: <!REDUNDANT_EXPLICIT_TYPE!>Boolean<!> = false
     try {
         <!VAL_REASSIGNMENT!>x<!> = (throw Exception()) || true //VAL_REASSIGNMENT should be
     } catch (e: Exception) {

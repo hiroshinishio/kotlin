@@ -11,8 +11,8 @@ class Derived : Base() {
         val d: DerivedNested = DerivedNested()
 
         fun foo() {
-            val bb: BaseNested = BaseNested()
-            val dd: DerivedNested = DerivedNested()
+            val bb: <!REDUNDANT_EXPLICIT_TYPE!>BaseNested<!> = BaseNested()
+            val dd: <!REDUNDANT_EXPLICIT_TYPE!>DerivedNested<!> = DerivedNested()
         }
     }
 }

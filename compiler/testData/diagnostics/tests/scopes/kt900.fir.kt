@@ -40,7 +40,7 @@ import b.A.Companion.P
 import b.A.Companion.B
 
 fun foo() {
-    val b : B = B()
+    val b : <!REDUNDANT_EXPLICIT_TYPE!>B<!> = B()
     B.foo()
 
     P.foo()

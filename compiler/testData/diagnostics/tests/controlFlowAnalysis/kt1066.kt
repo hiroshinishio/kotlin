@@ -1,4 +1,3 @@
-// FIR_IDENTICAL
 //KT-1066 false 'Variable cannot be initialized before declaration'
 
 package kt1066

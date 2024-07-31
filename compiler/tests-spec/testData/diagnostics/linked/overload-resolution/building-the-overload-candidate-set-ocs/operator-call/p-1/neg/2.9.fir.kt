@@ -22,7 +22,7 @@ package testPackCase1
 import LibPackCase1.a.plusAssign
 
 fun case1 (){
-    var b: B = B()
+    var b: <!REDUNDANT_EXPLICIT_TYPE!>B<!> = B()
     b +={ <!ARGUMENT_TYPE_MISMATCH, TYPE_MISMATCH!>C()<!> }
     b +={ 1 }
 }

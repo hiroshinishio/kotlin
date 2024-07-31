@@ -23,10 +23,10 @@ fun local() {
     var a_2: Byte = 1
     val b_1: Short = 1
     var b_2: Short = 1
-    val c_1: Int = 1
-    var c_2: Int = 1
-    val d_1: Long = 1
-    var d_2: Long = 1
+    val c_1: <!REDUNDANT_EXPLICIT_TYPE!>Int<!> = 1
+    var c_2: <!REDUNDANT_EXPLICIT_TYPE!>Int<!> = 1
+    val d_1: <!REDUNDANT_EXPLICIT_TYPE!>Long<!> = 1
+    var d_2: <!REDUNDANT_EXPLICIT_TYPE!>Long<!> = 1
 
     val e_1: Byte = <!INITIALIZER_TYPE_MISMATCH, TYPE_MISMATCH!>1 + 2<!>
     var e_2: Byte = <!INITIALIZER_TYPE_MISMATCH, TYPE_MISMATCH!>1 + 2<!>

@@ -23,7 +23,7 @@ fun foo() {
     builder(x)
     builder({1} <!UNCHECKED_CAST!>as (suspend () -> Int)<!>)
 
-    var i: Int = 1
+    var i: <!REDUNDANT_EXPLICIT_TYPE!>Int<!> = 1
     i = genericBuilder({ 1 })
     i = genericBuilder { 1 }
     genericBuilder { 1 }

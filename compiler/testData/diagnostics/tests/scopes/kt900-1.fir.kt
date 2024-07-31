@@ -5,8 +5,8 @@ import c.A.Companion.B
 import c.<!CANNOT_ALL_UNDER_IMPORT_FROM_SINGLETON!>M<!>.*
 
 fun foo() {
-    val b: B = B()
-    var r: R = R()
+    val b: <!REDUNDANT_EXPLICIT_TYPE!>B<!> = B()
+    var r: <!REDUNDANT_EXPLICIT_TYPE!>R<!> = R()
 }
 
 class A() {

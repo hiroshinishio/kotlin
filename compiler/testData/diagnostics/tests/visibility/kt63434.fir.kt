@@ -10,7 +10,7 @@ abstract class InlineCompletionSessionManager {
 fun checkCannotAccess() {
     object : InlineCompletionSessionManager() {
         fun chch() {
-            val b: Proto = Proto()
+            val b: <!REDUNDANT_EXPLICIT_TYPE!>Proto<!> = Proto()
             if (<!USELESS_IS_CHECK!>b is Proto.Some<!>) return
         }
     }

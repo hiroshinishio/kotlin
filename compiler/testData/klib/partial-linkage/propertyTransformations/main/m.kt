@@ -1,3 +1,5 @@
+@file:Suppress("REDUNDANT_EXPLICIT_TYPE")
+
 import abitestutils.abiTest
 
 fun box() = abiTest {

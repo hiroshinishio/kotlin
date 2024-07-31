@@ -14,7 +14,7 @@ class Bar {
 }
 
 fun testConstructor() {
-    val generatedClass: AllOpenGenerated = AllOpenGenerated()
+    val generatedClass: <!REDUNDANT_EXPLICIT_TYPE!>AllOpenGenerated<!> = AllOpenGenerated()
 }
 
 fun testNestedClasses() {

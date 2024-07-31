@@ -7,7 +7,7 @@ fun a(): Int {
         return c <!USELESS_ELVIS!>?: 0<!>
     }
 
-    var c: Int = 0
+    var c: <!REDUNDANT_EXPLICIT_TYPE!>Int<!> = 0
     c = 0
     return c
 }

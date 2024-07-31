@@ -61,10 +61,10 @@ fun t4(a: A) {
 // reassigned vals
 
 fun t1() {
-    val a : Int = 1
+    val a : <!REDUNDANT_EXPLICIT_TYPE!>Int<!> = 1
     <!VAL_REASSIGNMENT!>a<!> = 2
 
-    var b : Int = 1
+    var b : <!REDUNDANT_EXPLICIT_TYPE!>Int<!> = 1
     b = 3
 }
 

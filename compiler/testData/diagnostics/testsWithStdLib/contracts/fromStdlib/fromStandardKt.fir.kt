@@ -102,7 +102,7 @@ fun testRepeatOnVar(x: Int) {
 }
 
 fun testRepeatOnInitializedVar(x: Int) {
-    var y: Int = 24
+    var y: <!REDUNDANT_EXPLICIT_TYPE!>Int<!> = 24
     repeat(x) {
         y = 42
     }

@@ -48,7 +48,7 @@ const val withExplicitDefaultGetter: Int = 1
     <!CONST_VAL_WITH_GETTER!>get<!>
 
 fun foo(): Int {
-    <!WRONG_MODIFIER_TARGET!>const<!> val local: Int = 14
+    <!WRONG_MODIFIER_TARGET!>const<!> val local: <!REDUNDANT_EXPLICIT_TYPE!>Int<!> = 14
     return 15
 }
 

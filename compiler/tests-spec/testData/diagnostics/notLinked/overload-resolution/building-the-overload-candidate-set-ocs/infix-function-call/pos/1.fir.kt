@@ -21,7 +21,7 @@ class B(val memberValCNull: C? = null) {
 
 // TESTCASE NUMBER: 1
 fun case1() {
-    val b: B = B()
+    val b: <!REDUNDANT_EXPLICIT_TYPE!>B<!> = B()
 //    b memberValCNull 1                 //nok  (UNSAFE_INFIX_CALL)
 //    b.memberValCNull.invoke(1)         //nok (UNSAFE_CALL)
 

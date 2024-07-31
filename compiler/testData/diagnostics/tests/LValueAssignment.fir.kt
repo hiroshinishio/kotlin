@@ -39,7 +39,7 @@ class D() {
 fun foo(): Unit {}
 
 fun cannotBe() {
-    var i: Int = 5
+    var i: <!REDUNDANT_EXPLICIT_TYPE!>Int<!> = 5
 
     <!UNRESOLVED_REFERENCE!>z<!> = 30;
     <!VARIABLE_EXPECTED!>""<!> = "";
@@ -95,7 +95,7 @@ class Test() {
 
         <!VARIABLE_EXPECTED!>this<!><!UNRESOLVED_REFERENCE!>++<!>
 
-        var s : String = "r"
+        var s : <!REDUNDANT_EXPLICIT_TYPE!>String<!> = "r"
         s += "ss"
         s += this
         s += (a@ 2)
@@ -110,8 +110,8 @@ class Test() {
     }
 
     fun testVariables() {
-        var a: Int = 34
-        val b: Int = 34
+        var a: <!REDUNDANT_EXPLICIT_TYPE!>Int<!> = 34
+        val b: <!REDUNDANT_EXPLICIT_TYPE!>Int<!> = 34
 
         a += 34
         (l@ a) += 34
@@ -127,7 +127,7 @@ class Test() {
     }
 
     fun testVariables1() {
-        val b: Int = 34
+        val b: <!REDUNDANT_EXPLICIT_TYPE!>Int<!> = 34
 
         (l@ <!VAL_REASSIGNMENT!>b<!>) += 34
         //repeat for b

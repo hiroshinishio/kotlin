@@ -28,7 +28,7 @@ fun main() {
         x += 21
     }<!>
 
-    var m: MyNumber = MyNumber()
+    var m: <!REDUNDANT_EXPLICIT_TYPE!>MyNumber<!> = MyNumber()
     val a: () -> MyNumber = {
         m++
     }

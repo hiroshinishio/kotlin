@@ -55,7 +55,7 @@ fun case_4(x: Char) {
 
 // TESTCASE NUMBER: 5
 fun case_5() {
-    val x: Unit = kotlin.Unit
+    val x: <!REDUNDANT_EXPLICIT_TYPE!>Unit<!> = kotlin.Unit
 
     if (<!SENSELESS_COMPARISON!>x == null<!>) <!DEBUG_INFO_EXPRESSION_TYPE("kotlin.Unit & kotlin.Nothing")!>x<!>
 }

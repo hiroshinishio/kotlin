@@ -43,11 +43,11 @@ fun test4() {
 fun test5() {
     try {}
     catch (e: Exception) {
-        val a: Int = 42
+        val a: <!REDUNDANT_EXPLICIT_TYPE!>Int<!> = 42
         try {}
         catch (e: MyException) {
             e.myFun()
-            val a: String = ""
+            val a: <!REDUNDANT_EXPLICIT_TYPE!>String<!> = ""
             a.length
         }
     }

@@ -1,4 +1,4 @@
-FILE: privateFromInAnonymousObject.kt
+FILE: privateFromInAnonymousObject.fir.kt
     public final class Base : R|kotlin/Any| {
         public constructor(): R|Base| {
             super<R|kotlin/Any|>()

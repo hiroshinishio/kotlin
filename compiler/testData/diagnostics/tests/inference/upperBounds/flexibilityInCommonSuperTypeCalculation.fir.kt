@@ -90,7 +90,7 @@ fun case_6() {
 }
 
 fun case_7() {
-    val x0: Int = 1
+    val x0: <!REDUNDANT_EXPLICIT_TYPE!>Int<!> = 1
     val x1 = C(A(Test.id(x0)), B(), B())
     val x2 = C(Test.id(A(1)), B(), B())
     x1

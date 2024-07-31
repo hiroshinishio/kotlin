@@ -2,7 +2,7 @@
 
 fun test() : Unit {
   var x : Int? = 0
-  var y : Int = 0
+  var y : <!REDUNDANT_EXPLICIT_TYPE!>Int<!> = 0
 
   checkSubtype<Int?>(x)
   checkSubtype<Int>(y)

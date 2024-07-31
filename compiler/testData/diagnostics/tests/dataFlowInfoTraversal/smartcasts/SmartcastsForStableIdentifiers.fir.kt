@@ -21,7 +21,7 @@ class AClass() {
 val x : Any? = 1
 
 fun Any?.vars(a: Any?) : Int {
-    var b: Int = 0
+    var b: <!REDUNDANT_EXPLICIT_TYPE!>Int<!> = 0
     if (example.ns.y is Int) {
         b = y
     }

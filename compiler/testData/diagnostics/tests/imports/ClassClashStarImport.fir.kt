@@ -23,13 +23,13 @@ fun test(b: B) {
     b.m2()
     b.<!UNRESOLVED_REFERENCE!>m1<!>()
 
-    val b_: B = B()
+    val b_: <!REDUNDANT_EXPLICIT_TYPE!>B<!> = B()
     b_.m2()
 
-    val b_1: a.B = B()
+    val b_1: <!REDUNDANT_EXPLICIT_TYPE!>a.B<!> = B()
     b_1.m2()
 
-    val b_2: B = a.B()
+    val b_2: <!REDUNDANT_EXPLICIT_TYPE!>B<!> = a.B()
     b_2.m2()
 
     val b_3 = B()
@@ -61,7 +61,7 @@ fun test(b: B) {
     b.m2()
     b.<!UNRESOLVED_REFERENCE!>m1<!>()
 
-    val b_: B = B()
+    val b_: <!REDUNDANT_EXPLICIT_TYPE!>B<!> = B()
     b_.m2()
 
     val b_2 = B()
